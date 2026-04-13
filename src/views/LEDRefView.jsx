@@ -137,10 +137,13 @@ function InteractiveLEDs() {
     const [leds, setLeds] = useState(initState);
 
     function cycle(mod, color) {
-        setLeds(prev => ({
-            ...prev,
-            [mod]: { ...prev[mod], [color]: (prev[mod][color] + 1) % 3 },
-        }));
+        setLeds(prev => {
+            const newVal = (prev[mod][color] + 1) % 3;
+            const newMod = newVal > 0
+                ? Object.fromEntries(Object.keys(prev[mod]).map(k => [k, k === color ? newVal : 0]))
+                : { ...prev[mod], [color]: 0 };
+            return { ...prev, [mod]: newMod };
+        });
     }
 
     const MODULES = [
