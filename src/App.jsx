@@ -17,9 +17,18 @@ export default function App() {
         return saved ? saved === "dark" : true;
     });
 
+    // ── PWA install prompt ──
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [installed, setInstalled] = useState(false);
+
     useEffect(() => {
         injectCSS();
         applyTheme(isDark);
+
+        const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+        window.addEventListener("beforeinstallprompt", handler);
+        window.addEventListener("appinstalled", () => { setInstalled(true); setInstallPrompt(null); });
+        return () => window.removeEventListener("beforeinstallprompt", handler);
     }, []);
 
     const toggleTheme = useCallback(() => {
@@ -151,8 +160,21 @@ export default function App() {
                     }}>N</div>
                     <div className="font-orbitron" style={{ fontSize: "14px", color: "var(--c-accent)" }}>NCR TECH</div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ fontSize: "12px", color: "var(--c-dim)", fontFamily: "'Share Tech Mono'" }}>v2.1.0</div>
+                    {installPrompt && !installed && (
+                        <button onClick={async () => {
+                            installPrompt.prompt();
+                            const { outcome } = await installPrompt.userChoice;
+                            if (outcome === "accepted") { setInstalled(true); setInstallPrompt(null); }
+                        }} className="nf" style={{
+                            padding: "0 10px", height: 34, borderRadius: 8,
+                            border: "1px solid var(--c-accent)", background: "var(--c-accent-bg)",
+                            color: "var(--c-accent)", cursor: "pointer", fontSize: 12,
+                            fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
+                            letterSpacing: ".5px", whiteSpace: "nowrap",
+                        }}>⬇ Instalar</button>
+                    )}
                     <button onClick={toggleTheme} className="nf" style={{
                         width: 36, height: 36, borderRadius: 8, border: "1px solid var(--c-border)",
                         background: "var(--c-card)", cursor: "pointer", fontSize: 18,
