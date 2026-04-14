@@ -166,27 +166,25 @@ function PartImage({ pn }) {
     const [status, setStatus] = useState("loading"); // loading | ok | missing
     const src = `/images/parts/${pn}.jpg`;
     return (
-        <div style={{ background: theme.bg2, borderRadius: 10, border: `1px solid ${theme.bd}`, overflow: "hidden" }}>
-            {status !== "missing" && (
-                <img
-                    src={src}
-                    alt={pn}
-                    onLoad={() => setStatus("ok")}
-                    onError={() => setStatus("missing")}
-                    style={{ width: "100%", display: status === "ok" ? "block" : "none", maxHeight: 260, objectFit: "contain", background: "#fff" }}
-                />
+        <div style={{ background: theme.bg2, borderRadius: 10, border: `1px solid ${theme.bd}`, overflow: "hidden", minHeight: status === "ok" ? 0 : 72, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* img siempre montada para que el browser la cargue de inmediato */}
+            <img
+                src={src}
+                alt={pn}
+                onLoad={() => setStatus("ok")}
+                onError={() => setStatus("missing")}
+                style={{ width: "100%", maxHeight: 260, objectFit: "contain", background: "#fff", display: status === "ok" ? "block" : "none" }}
+            />
+            {status === "loading" && (
+                <div style={{ padding: "18px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${theme.ac}`, borderTopColor: "transparent", animation: "spin .7s linear infinite", flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, fontStyle: "italic" }}>Cargando imagen…</span>
+                </div>
             )}
-            {(status === "missing" || status === "loading") && (
-                <div style={{ padding: "20px 14px", display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 8, background: theme.bg, border: `1px dashed ${theme.bd}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-                        {status === "loading" ? "⏳" : "📷"}
-                    </div>
-                    <div>
-                        <div style={{ fontSize: 12, fontFamily: fonts.mono, color: theme.dm }}>{src}</div>
-                        <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginTop: 2, fontStyle: "italic" }}>
-                            {status === "loading" ? "Cargando..." : "Sin imagen disponible"}
-                        </div>
-                    </div>
+            {status === "missing" && (
+                <div style={{ padding: "18px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>📷</span>
+                    <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, fontStyle: "italic" }}>Sin imagen disponible</span>
                 </div>
             )}
         </div>

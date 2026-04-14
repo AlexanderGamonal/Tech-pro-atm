@@ -87,6 +87,7 @@ export function injectCSS() {
     @keyframes ledFlash { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
     @keyframes fi  { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes nF  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .font-orbitron { font-family: 'Orbitron', sans-serif; }
     .font-mono     { font-family: 'Share Tech Mono', monospace; }
