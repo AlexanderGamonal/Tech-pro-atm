@@ -138,11 +138,18 @@ function InteractiveLEDs() {
 
     function cycle(mod, color) {
         setLeds(prev => {
-            const newVal = (prev[mod][color] + 1) % 3;
-            const newMod = newVal > 0
-                ? Object.fromEntries(Object.keys(prev[mod]).map(k => [k, k === color ? newVal : 0]))
-                : { ...prev[mod], [color]: 0 };
-            return { ...prev, [mod]: newMod };
+            const cur = prev[mod][color];
+            const next = (cur + 1) % 3;
+            if (next === 0) {
+                // last state → off, leave others untouched
+                return { ...prev, [mod]: { ...prev[mod], [color]: 0 } };
+            } else {
+                // turning on or advancing → reset all others in module to 0
+                const reset = Object.fromEntries(
+                    Object.keys(prev[mod]).map(k => [k, k === color ? next : 0])
+                );
+                return { ...prev, [mod]: reset };
+            }
         });
     }
 
