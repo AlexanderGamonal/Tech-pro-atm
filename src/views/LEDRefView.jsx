@@ -211,25 +211,25 @@ function InteractiveLEDs() {
 // ── BRM Interactive Diagram ───────────────────────────────────────────────────
 
 const BRM_COMPS = [
-    { id: "pocket",       name: "Pocket",                           module: "Upper Module", fill: "#1e3a5f", desc: "Bandeja de presentación de billetes al cliente. Recibe los billetes aceptados o retorna los rechazados para que el usuario los retire físicamente.", tags: ["presentación","retorno","cliente"] },
-    { id: "exc-upper",    name: "Upper Exception Bin",              module: "Upper Module", fill: "#3b2a4a", desc: "Contenedor de excepciones superior. Almacena temporalmente billetes problemáticos durante el proceso de validación o transporte en el módulo superior.", tags: ["excepciones","rechazo","superior"] },
-    { id: "bridge",       name: "Bridge / Centralisation Transport",module: "Upper Module", fill: "#1a3d3d", desc: "Transporte puente de centralización. Conecta los sub-módulos del Upper Module y dirige los billetes hacia el validador, escrow o pocket según el flujo.", tags: ["transporte","centralización","routing"] },
-    { id: "escrow",       name: "Escrow",                           module: "Upper Module", fill: "#3a1e3a", desc: "Módulo de retención temporal. Mantiene los billetes en suspenso mientras el sistema confirma la transacción. Si hay error, los billetes se devuelven al cliente.", tags: ["retención","temporal","reversión"] },
-    { id: "ut-front",     name: "Upper Transport (Front Side)",     module: "Upper Module", fill: "#2a3a1e", desc: "Transporte superior — lado frontal. Gestiona el movimiento de billetes en la sección delantera del módulo superior, coordinando el flujo desde el pocket hacia el validador.", tags: ["transporte","frontal","superior"] },
-    { id: "bill-val",     name: "Bill Validator",                   module: "Upper Module", fill: "#3d2a1a", desc: "Validador de billetes. Verifica autenticidad (UV, IR, magnético, dimensión) y denominación. Núcleo de la aceptación; rechaza billetes falsos o dañados.", tags: ["validación","autenticidad","denominación","sensor"] },
-    { id: "ut-rear",      name: "Upper Transport (Rear Side)",      module: "Upper Module", fill: "#1e2a3d", desc: "Transporte superior — lado trasero. Gestiona el movimiento de billetes en la sección posterior del módulo superior, enlazando el validador con el escrow y el bridge.", tags: ["transporte","trasero","superior"] },
-    { id: "inter-transp", name: "Intermediate Transport",           module: "Interface",    fill: "#3d3a1a", desc: "Transporte intermedio. Enlace mecánico crítico entre el Upper Module y el Lower Module. Canaliza los billetes validados hacia las cassettes de reciclaje o el cassette de excepciones.", tags: ["interfaz","enlace","módulos"] },
-    { id: "lh-transp",    name: "Lower Horizontal Transport",       module: "Lower Module", fill: "#1a3a2a", desc: "Transporte horizontal inferior. Distribuye los billetes a lo largo del módulo inferior, enrutándolos hacia la cassette correcta según las instrucciones del controlador.", tags: ["transporte","horizontal","distribución"] },
-    { id: "vert-transp",  name: "Vertical Transport",               module: "Lower Module", fill: "#3a2a1e", desc: "Transporte vertical. Mueve billetes de forma vertical dentro del Lower Module, conectando el transporte horizontal con las cassettes de reciclaje.", tags: ["transporte","vertical","cassettes"] },
-    { id: "exc-lower",    name: "Lower Exception Cassette",         module: "Lower Module", fill: "#2a1e3a", desc: "Cassette de excepciones inferior. Almacena definitivamente los billetes que no pudieron ser reciclados ni devueltos: billetes sospechosos, doblados o con error de transporte confirmado.", tags: ["excepciones","almacenamiento","rechazo definitivo"] },
-    { id: "rec1",         name: "Recycler Cassette 1",              module: "Lower Module", fill: "#1e3a1e", desc: "Cassette recicladora #1. Almacena y dispensa billetes de una denominación específica. Puede recibir billetes durante depósitos y dispensarlos durante retiros.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec2",         name: "Recycler Cassette 2",              module: "Lower Module", fill: "#1e3a1e", desc: "Cassette recicladora #2. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec3",         name: "Recycler Cassette 3",              module: "Lower Module", fill: "#1e3a1e", desc: "Cassette recicladora #3. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec4",         name: "Recycler Cassette 4",              module: "Lower Module", fill: "#1e3a1e", desc: "Cassette recicladora #4. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
+    { id: "pocket",       name: "Pocket",                           module: "Upper Module", fill: "#0f2d52", desc: "Bandeja de presentación de billetes al cliente. Recibe los billetes aceptados o retorna los rechazados para que el usuario los retire físicamente.", tags: ["presentación","retorno","cliente"] },
+    { id: "exc-upper",    name: "Upper Exception Bin",              module: "Upper Module", fill: "#2e1455", desc: "Contenedor de excepciones superior. Almacena temporalmente billetes problemáticos durante el proceso de validación o transporte en el módulo superior.", tags: ["excepciones","rechazo","superior"] },
+    { id: "bridge",       name: "Bridge / Centralisation Transport",module: "Upper Module", fill: "#0c3d40", desc: "Transporte puente de centralización. Conecta los sub-módulos del Upper Module y dirige los billetes hacia el validador, escrow o pocket según el flujo.", tags: ["transporte","centralización","routing"] },
+    { id: "escrow",       name: "Escrow",                           module: "Upper Module", fill: "#42103f", desc: "Módulo de retención temporal. Mantiene los billetes en suspenso mientras el sistema confirma la transacción. Si hay error, los billetes se devuelven al cliente.", tags: ["retención","temporal","reversión"] },
+    { id: "ut-front",     name: "Upper Transport (Front Side)",     module: "Upper Module", fill: "#173d18", desc: "Transporte superior — lado frontal. Gestiona el movimiento de billetes en la sección delantera del módulo superior, coordinando el flujo desde el pocket hacia el validador.", tags: ["transporte","frontal","superior"] },
+    { id: "bill-val",     name: "Bill Validator",                   module: "Upper Module", fill: "#472a0e", desc: "Validador de billetes. Verifica autenticidad (UV, IR, magnético, dimensión) y denominación. Núcleo de la aceptación; rechaza billetes falsos o dañados.", tags: ["validación","autenticidad","denominación","sensor"] },
+    { id: "ut-rear",      name: "Upper Transport (Rear Side)",      module: "Upper Module", fill: "#112040", desc: "Transporte superior — lado trasero. Gestiona el movimiento de billetes en la sección posterior del módulo superior, enlazando el validador con el escrow y el bridge.", tags: ["transporte","trasero","superior"] },
+    { id: "inter-transp", name: "Intermediate Transport",           module: "Interface",    fill: "#3d320a", desc: "Transporte intermedio. Enlace mecánico crítico entre el Upper Module y el Lower Module. Canaliza los billetes validados hacia las cassettes de reciclaje o el cassette de excepciones.", tags: ["interfaz","enlace","módulos"] },
+    { id: "lh-transp",    name: "Lower Horizontal Transport",       module: "Lower Module", fill: "#0a3020", desc: "Transporte horizontal inferior. Distribuye los billetes a lo largo del módulo inferior, enrutándolos hacia la cassette correcta según las instrucciones del controlador.", tags: ["transporte","horizontal","distribución"] },
+    { id: "vert-transp",  name: "Vertical Transport",               module: "Lower Module", fill: "#331c0a", desc: "Transporte vertical. Mueve billetes de forma vertical dentro del Lower Module, conectando el transporte horizontal con las cassettes de reciclaje.", tags: ["transporte","vertical","cassettes"] },
+    { id: "exc-lower",    name: "Lower Exception Cassette",         module: "Lower Module", fill: "#230e40", desc: "Cassette de excepciones inferior. Almacena definitivamente los billetes que no pudieron ser reciclados ni devueltos: billetes sospechosos, doblados o con error de transporte confirmado.", tags: ["excepciones","almacenamiento","rechazo definitivo"] },
+    { id: "rec1",         name: "Recycler Cassette 1",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #1. Almacena y dispensa billetes de una denominación específica. Puede recibir billetes durante depósitos y dispensarlos durante retiros.", tags: ["reciclaje","almacenamiento","dispensación"] },
+    { id: "rec2",         name: "Recycler Cassette 2",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #2. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
+    { id: "rec3",         name: "Recycler Cassette 3",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #3. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
+    { id: "rec4",         name: "Recycler Cassette 4",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #4. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
 ];
 
 const MOD_COLORS = { "Upper Module": "#58a6ff", "Lower Module": "#3fb950", "Interface": "#d29922" };
-const COMP_TEXT  = { fill: "#a0b4cc", textAnchor: "middle", fontSize: 12, fontFamily: "IBM Plex Mono,monospace" };
+const COMP_TEXT  = { fill: "#c8dcea", textAnchor: "middle", fontSize: 12, fontFamily: "IBM Plex Mono,monospace", fontWeight: "600" };
 
 function BrmDiagram() {
     const [sel, setSel] = useState("pocket");
@@ -241,10 +241,10 @@ function BrmDiagram() {
         const isSelected = sel === id;
         return {
             fill: comp?.fill || "#1c2733",
-            stroke: isSelected ? "#58a6ff" : "#4a90d9",
-            strokeWidth: isSelected ? 2.5 : 0.8,
+            stroke: isSelected ? "#58a6ff" : "#253a52",
+            strokeWidth: isSelected ? 3 : 1,
             cursor: "pointer",
-            filter: isSelected ? "brightness(1.7)" : "none",
+            filter: isSelected ? "brightness(1.8) saturate(1.6)" : "brightness(1.1)",
             transition: "all .15s",
         };
     }
@@ -256,30 +256,41 @@ function BrmDiagram() {
                     📐 BRM — Diagrama de componentes interactivo
                 </div>
                 <svg viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block" }}>
-                    <rect x="8" y="8" width="544" height="185" rx="5" fill="none" stroke="#4a90d9" strokeWidth="1.5" strokeDasharray="4 3" />
-                    <text x="18" y="20" fontFamily="IBM Plex Mono,monospace" fontSize="9" fill="#4a90d9" letterSpacing="0.08em">UPPER MODULE</text>
-                    <rect x="8" y="245" width="544" height="227" rx="5" fill="none" stroke="#4a90d9" strokeWidth="1.5" strokeDasharray="4 3" />
-                    <text x="18" y="257" fontFamily="IBM Plex Mono,monospace" fontSize="9" fill="#4a90d9" letterSpacing="0.08em">LOWER MODULE</text>
-                    <line x1="110" y1="95" x2="185" y2="95" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <line x1="185" y1="95" x2="185" y2="145" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <line x1="255" y1="95" x2="310" y2="95" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <line x1="360" y1="95" x2="415" y2="95" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <line x1="415" y1="95" x2="470" y2="95" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <line x1="177" y1="193" x2="177" y2="245" stroke="#3a5070" strokeWidth="1" strokeDasharray="4 3" />
-                    <g onClick={() => setSel("pocket")} style={{ cursor: "pointer" }}><rect x="16" y="75" width="94" height="110" rx="3" style={compStyle("pocket")} /><text x="63" y="130" {...COMP_TEXT}>Pocket</text></g>
-                    <g onClick={() => setSel("exc-upper")} style={{ cursor: "pointer" }}><rect x="122" y="40" width="112" height="56" rx="3" style={compStyle("exc-upper")} /><text x="178" y="65" {...COMP_TEXT}>Upper Exception</text><text x="178" y="79" {...COMP_TEXT}>Bin</text></g>
-                    <g onClick={() => setSel("bridge")} style={{ cursor: "pointer" }}><rect x="248" y="40" width="150" height="56" rx="3" style={compStyle("bridge")} /><text x="323" y="62" {...COMP_TEXT}>Bridge/Centralisation</text><text x="323" y="76" {...COMP_TEXT}>Transport</text></g>
-                    <g onClick={() => setSel("escrow")} style={{ cursor: "pointer" }}><rect x="414" y="40" width="130" height="145" rx="3" style={compStyle("escrow")} /><text x="479" y="113" {...COMP_TEXT}>Escrow</text></g>
-                    <g onClick={() => setSel("ut-front")} style={{ cursor: "pointer" }}><rect x="122" y="108" width="112" height="77" rx="3" style={compStyle("ut-front")} /><text x="178" y="142" {...COMP_TEXT}>Upper Transport</text><text x="178" y="155" {...COMP_TEXT}>(Front Side)</text></g>
-                    <g onClick={() => setSel("bill-val")} style={{ cursor: "pointer" }}><rect x="248" y="108" width="100" height="77" rx="3" style={compStyle("bill-val")} /><text x="298" y="143" {...COMP_TEXT}>Bill</text><text x="298" y="156" {...COMP_TEXT}>Validator</text></g>
-                    <g onClick={() => setSel("ut-rear")} style={{ cursor: "pointer" }}><rect x="360" y="108" width="48" height="77" rx="3" style={compStyle("ut-rear")} /><text x="384" y="138" {...COMP_TEXT}>Upper</text><text x="384" y="151" {...COMP_TEXT}>Transport</text><text x="384" y="164" {...COMP_TEXT}>(Rear)</text></g>
-                    <g onClick={() => setSel("inter-transp")} style={{ cursor: "pointer" }}><rect x="120" y="201" width="115" height="35" rx="3" style={compStyle("inter-transp")} /><text x="177" y="220" {...COMP_TEXT}>Intermediate Transport</text></g>
-                    <g onClick={() => setSel("lh-transp")} style={{ cursor: "pointer" }}><rect x="130" y="268" width="412" height="30" rx="3" style={compStyle("lh-transp")} /><text x="336" y="283" {...COMP_TEXT}>Lower Horizontal Transport</text></g>
-                    <g onClick={() => setSel("vert-transp")} style={{ cursor: "pointer" }}><rect x="125" y="302" width="22" height="160" rx="3" style={compStyle("vert-transp")} /><text x="115" y="368" transform="rotate(-90,133,365)" fontSize="9" fontFamily="IBM Plex Mono,monospace" fill="#a0b4cc" textAnchor="middle">Vertical Transport</text></g>
-                    <g onClick={() => setSel("exc-lower")} style={{ cursor: "pointer" }}><rect x="16" y="268" width="100" height="195" rx="3" style={compStyle("exc-lower")} /><text x="66" y="355" {...COMP_TEXT}>Lower</text><text x="66" y="369" {...COMP_TEXT}>Exception</text><text x="66" y="383" {...COMP_TEXT}>Cassette</text></g>
+                    <defs>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                    </defs>
+                    {/* Background */}
+                    <rect x="0" y="0" width="560" height="480" fill="#0c1520" />
+                    {/* Module areas */}
+                    <rect x="8" y="8" width="544" height="185" rx="6" fill="rgba(88,166,255,0.04)" stroke="#3a6fa0" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <text x="20" y="22" fontFamily="IBM Plex Mono,monospace" fontSize="10" fill="#6aaee8" letterSpacing="0.12em" fontWeight="700">UPPER MODULE</text>
+                    <rect x="8" y="245" width="544" height="227" rx="6" fill="rgba(63,185,80,0.04)" stroke="#2e7a40" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <text x="20" y="258" fontFamily="IBM Plex Mono,monospace" fontSize="10" fill="#4ec468" letterSpacing="0.12em" fontWeight="700">LOWER MODULE</text>
+                    {/* Flow lines */}
+                    <line x1="110" y1="95" x2="185" y2="95" stroke="#2e5070" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <line x1="185" y1="95" x2="185" y2="145" stroke="#2e5070" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <line x1="255" y1="95" x2="310" y2="95" stroke="#2e5070" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <line x1="360" y1="95" x2="415" y2="95" stroke="#2e5070" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <line x1="415" y1="95" x2="470" y2="95" stroke="#2e5070" strokeWidth="1.5" strokeDasharray="5 3" />
+                    <line x1="177" y1="193" x2="177" y2="245" stroke="#c8a020" strokeWidth="1.8" strokeDasharray="5 3" />
+                    {/* Components */}
+                    <g onClick={() => setSel("pocket")} style={{ cursor: "pointer" }}><rect x="16" y="75" width="94" height="110" rx="4" style={sel==="pocket"?{...compStyle("pocket"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("pocket")} /><text x="63" y="125" {...COMP_TEXT}>Pocket</text></g>
+                    <g onClick={() => setSel("exc-upper")} style={{ cursor: "pointer" }}><rect x="122" y="40" width="112" height="56" rx="4" style={sel==="exc-upper"?{...compStyle("exc-upper"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("exc-upper")} /><text x="178" y="65" {...COMP_TEXT}>Upper Exception</text><text x="178" y="79" {...COMP_TEXT}>Bin</text></g>
+                    <g onClick={() => setSel("bridge")} style={{ cursor: "pointer" }}><rect x="248" y="40" width="150" height="56" rx="4" style={sel==="bridge"?{...compStyle("bridge"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("bridge")} /><text x="323" y="62" {...COMP_TEXT}>Bridge/Centralisation</text><text x="323" y="76" {...COMP_TEXT}>Transport</text></g>
+                    <g onClick={() => setSel("escrow")} style={{ cursor: "pointer" }}><rect x="414" y="40" width="130" height="145" rx="4" style={sel==="escrow"?{...compStyle("escrow"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("escrow")} /><text x="479" y="113" {...COMP_TEXT}>Escrow</text></g>
+                    <g onClick={() => setSel("ut-front")} style={{ cursor: "pointer" }}><rect x="122" y="108" width="112" height="77" rx="4" style={sel==="ut-front"?{...compStyle("ut-front"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("ut-front")} /><text x="178" y="142" {...COMP_TEXT}>Upper Transport</text><text x="178" y="155" {...COMP_TEXT}>(Front Side)</text></g>
+                    <g onClick={() => setSel("bill-val")} style={{ cursor: "pointer" }}><rect x="248" y="108" width="100" height="77" rx="4" style={sel==="bill-val"?{...compStyle("bill-val"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("bill-val")} /><text x="298" y="143" {...COMP_TEXT}>Bill</text><text x="298" y="156" {...COMP_TEXT}>Validator</text></g>
+                    <g onClick={() => setSel("ut-rear")} style={{ cursor: "pointer" }}><rect x="360" y="108" width="48" height="77" rx="4" style={sel==="ut-rear"?{...compStyle("ut-rear"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("ut-rear")} /><text x="384" y="138" {...COMP_TEXT}>Upper</text><text x="384" y="151" {...COMP_TEXT}>Transport</text><text x="384" y="164" {...COMP_TEXT}>(Rear)</text></g>
+                    <g onClick={() => setSel("inter-transp")} style={{ cursor: "pointer" }}><rect x="120" y="201" width="115" height="35" rx="4" style={sel==="inter-transp"?{...compStyle("inter-transp"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("inter-transp")} /><text x="177" y="221" {...COMP_TEXT}>Intermediate Transport</text></g>
+                    <g onClick={() => setSel("lh-transp")} style={{ cursor: "pointer" }}><rect x="130" y="268" width="412" height="30" rx="4" style={sel==="lh-transp"?{...compStyle("lh-transp"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("lh-transp")} /><text x="336" y="284" {...COMP_TEXT}>Lower Horizontal Transport</text></g>
+                    <g onClick={() => setSel("vert-transp")} style={{ cursor: "pointer" }}><rect x="125" y="302" width="22" height="160" rx="4" style={sel==="vert-transp"?{...compStyle("vert-transp"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("vert-transp")} /><text x="115" y="368" transform="rotate(-90,133,365)" fontSize="10" fontFamily="IBM Plex Mono,monospace" fill="#c8dcea" fontWeight="600" textAnchor="middle">Vertical Transport</text></g>
+                    <g onClick={() => setSel("exc-lower")} style={{ cursor: "pointer" }}><rect x="16" y="268" width="100" height="195" rx="4" style={sel==="exc-lower"?{...compStyle("exc-lower"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("exc-lower")} /><text x="66" y="355" {...COMP_TEXT}>Lower</text><text x="66" y="369" {...COMP_TEXT}>Exception</text><text x="66" y="383" {...COMP_TEXT}>Cassette</text></g>
                     {[["rec1",158],["rec2",255],["rec3",353],["rec4",452]].map(([id, x], i) => (
                         <g key={id} onClick={() => setSel(id)} style={{ cursor: "pointer" }}>
-                            <rect x={x} y="302" width="89" height="161" rx="3" style={compStyle(id)} />
+                            <rect x={x} y="302" width="89" height="161" rx="4" style={sel===id?{...compStyle(id),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle(id)} />
                             <text x={x+44} y="378" {...COMP_TEXT}>Recycler</text>
                             <text x={x+44} y="391" {...COMP_TEXT}>Cassette {i+1}</text>
                         </g>
@@ -287,13 +298,13 @@ function BrmDiagram() {
                 </svg>
             </div>
             {info && (
-                <div style={{ background: V.surf, border: `1px solid ${modColor}40`, borderRadius: 10, padding: "14px", animation: "fi .2s ease" }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: V.br, marginBottom: 6 }}>{info.name}</div>
-                    <div style={{ display: "inline-block", fontSize: 11, fontFamily: "'Share Tech Mono', monospace", color: modColor, background: `${modColor}18`, border: `1px solid ${modColor}40`, borderRadius: 4, padding: "2px 8px", marginBottom: 10 }}>{info.module}</div>
-                    <div style={{ fontSize: 13, color: V.dm, lineHeight: 1.6, marginBottom: 10 }}>{info.desc}</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                <div style={{ background: V.surf, border: `1.5px solid ${modColor}50`, borderRadius: 12, padding: "16px", animation: "fi .2s ease", boxShadow: `0 0 16px ${modColor}18` }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: V.br, marginBottom: 8 }}>{info.name}</div>
+                    <div style={{ display: "inline-block", fontSize: 12, fontFamily: "'Share Tech Mono', monospace", color: modColor, background: `${modColor}20`, border: `1px solid ${modColor}50`, borderRadius: 5, padding: "3px 10px", marginBottom: 12 }}>{info.module}</div>
+                    <div style={{ fontSize: 14, color: V.dm, lineHeight: 1.7, marginBottom: 12 }}>{info.desc}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {info.tags.map(t => (
-                            <span key={t} style={{ fontSize: 11, color: "#58a6ff", background: "rgba(88,166,255,.08)", border: "1px solid rgba(88,166,255,.2)", borderRadius: 4, padding: "2px 8px" }}>{t}</span>
+                            <span key={t} style={{ fontSize: 12, color: "#58a6ff", background: "rgba(88,166,255,.10)", border: "1px solid rgba(88,166,255,.25)", borderRadius: 5, padding: "3px 10px" }}>{t}</span>
                         ))}
                     </div>
                 </div>

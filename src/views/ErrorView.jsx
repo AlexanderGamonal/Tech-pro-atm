@@ -323,30 +323,32 @@ function ErrorDecoder() {
             {/* Formula header */}
             <div style={{ background: theme.card, borderRadius: 12, border: `1px solid ${theme.bd}`, padding: "14px 12px", marginBottom: 14 }}>
                 {/* Device selector — requerido antes de decodificar */}
-                <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 8 }}>
+                <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, marginBottom: 10, fontWeight: 600 }}>
                         Equipo: <span style={{ color: theme.rd, fontWeight: 700 }}>*</span>
                     </div>
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 10 }}>
                         {[
-                            ["s2",  "S2 Dispenser",   "Dispensador · 6623/6627", theme.rd],
-                            ["brm", "BRM",             "Reciclador · 6683/6687",  theme.gn],
+                            ["s2",  "S2 Dispenser",  "Dispensador · 6623/6627", theme.rd],
+                            ["brm", "BRM",            "Reciclador · 6683/6687",  theme.gn],
                         ].map(([id, name, model, cl]) => (
                             <button key={id} onClick={() => { setDevType(id); setResult(null); }} style={{
-                                flex: 1, padding: "10px 8px", borderRadius: 10,
-                                border: `1.5px solid ${devType === id ? cl : theme.bd}`,
-                                background: devType === id ? cl + "18" : "transparent",
+                                flex: 1, padding: "13px 10px", borderRadius: 12,
+                                border: `2px solid ${devType === id ? cl : theme.bd}`,
+                                background: devType === id ? cl + "22" : theme.bg,
                                 color: devType === id ? cl : theme.dm,
-                                fontFamily: fonts.display, fontSize: 13, fontWeight: devType === id ? 700 : 500,
+                                fontFamily: fonts.display, fontSize: 15, fontWeight: devType === id ? 700 : 500,
                                 cursor: "pointer", textAlign: "center",
+                                boxShadow: devType === id ? `0 0 14px ${cl}35` : "none",
+                                transition: "all .15s",
                             }}>
                                 <div>{name}</div>
-                                <div style={{ fontFamily: fonts.mono, fontSize: 11, marginTop: 3, opacity: 0.85 }}>{model}</div>
+                                <div style={{ fontFamily: fonts.mono, fontSize: 12, marginTop: 5, opacity: 0.8 }}>{model}</div>
                             </button>
                         ))}
                     </div>
                 </div>
-                <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 12, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, marginBottom: 14, lineHeight: 1.6 }}>
                     Ingresa los valores del <b style={{ color: theme.tx }}>Device Event Log</b>. M-Status en decimal (según Status Code Book). Bytes en hex (00–FF). T-Code opcional.
                 </div>
 
@@ -376,14 +378,15 @@ function ErrorDecoder() {
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
                     <button onClick={decode} disabled={!ms || !devType} style={{
-                        flex: 1, padding: "11px", borderRadius: 10, border: "none",
+                        flex: 1, padding: "13px", borderRadius: 10, border: "none",
                         background: ms && devType ? theme.am : theme.bd, color: ms && devType ? "#000" : theme.dm,
-                        fontFamily: fonts.display, fontWeight: 700, fontSize: 13, cursor: ms ? "pointer" : "default",
+                        fontFamily: fonts.display, fontWeight: 700, fontSize: 15, cursor: ms && devType ? "pointer" : "default",
+                        letterSpacing: ".4px",
                     }}>Decodificar</button>
                     <button onClick={reset} style={{
-                        padding: "11px 16px", borderRadius: 10, border: `1px solid ${theme.bd}`,
+                        padding: "13px 18px", borderRadius: 10, border: `1px solid ${theme.bd}`,
                         background: "transparent", color: theme.dm,
-                        fontFamily: fonts.display, fontSize: 13, cursor: "pointer",
+                        fontFamily: fonts.display, fontSize: 14, cursor: "pointer",
                     }}>Reset</button>
                 </div>
             </div>
@@ -394,12 +397,12 @@ function ErrorDecoder() {
                     {result.err ? (
                         <>
                             {/* Error header card */}
-                            <div style={{ background: theme.card, borderRadius: 12, border: `1.5px solid ${result.device === "s2" ? theme.rd + "50" : theme.gn + "50"}`, padding: "14px 16px", marginBottom: 10 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                                    <span style={{ fontFamily: fonts.mono, fontSize: 22, fontWeight: 900, color: result.device === "s2" ? theme.rd : theme.gn }}>{result.ms}</span>
+                            <div style={{ background: theme.card, borderRadius: 12, border: `2px solid ${result.device === "s2" ? theme.rd + "70" : theme.gn + "70"}`, padding: "16px", marginBottom: 10, boxShadow: `0 0 18px ${result.device === "s2" ? theme.rd : theme.gn}18` }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+                                    <span style={{ fontFamily: fonts.mono, fontSize: 32, fontWeight: 900, color: result.device === "s2" ? theme.rd : theme.gn, lineHeight: 1 }}>{result.ms}</span>
                                     <div>
-                                        <div style={{ fontSize: 12, fontFamily: fonts.mono, color: result.device === "s2" ? theme.rd : theme.gn, textTransform: "uppercase", letterSpacing: "1px" }}>M-Status · {result.device === "s2" ? "S2 Dispenser · Dispensador 6623/6627" : "BRM · Reciclador 6683/6687"}</div>
-                                        <div style={{ fontSize: 13, fontFamily: fonts.display, fontWeight: 600, color: theme.br, marginTop: 2 }}>{result.err.desc}</div>
+                                        <div style={{ fontSize: 13, fontFamily: fonts.mono, color: result.device === "s2" ? theme.rd : theme.gn, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>M-Status · {result.device === "s2" ? "S2 Dispenser · Dispensador 6623/6627" : "BRM · Reciclador 6683/6687"}</div>
+                                        <div style={{ fontSize: 15, fontFamily: fonts.display, fontWeight: 700, color: theme.br, lineHeight: 1.4 }}>{result.err.desc}</div>
                                     </div>
                                 </div>
                                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -415,11 +418,11 @@ function ErrorDecoder() {
                                         Decodificación de M-Data
                                     </div>
                                     {result.decoded.map((row, i) => (
-                                        <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 14px", borderBottom: i < result.decoded.length - 1 ? `1px solid ${theme.bd}` : "none" }}>
-                                            <span style={{ fontFamily: fonts.mono, fontSize: 13, fontWeight: 700, color: row.color, minWidth: 28, flexShrink: 0 }}>{row.hex}</span>
+                                        <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", padding: "12px 14px", borderBottom: i < result.decoded.length - 1 ? `1px solid ${theme.bd}` : "none" }}>
+                                            <span style={{ fontFamily: fonts.mono, fontSize: 15, fontWeight: 700, color: row.color, minWidth: 32, flexShrink: 0 }}>{row.hex}</span>
                                             <div style={{ flex: 1 }}>
-                                                <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 2 }}>{row.label}</div>
-                                                <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.tx }}>{row.value}</div>
+                                                <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 3, letterSpacing: ".3px" }}>{row.label}</div>
+                                                <div style={{ fontSize: 14, fontFamily: fonts.display, color: theme.tx, lineHeight: 1.5 }}>{row.value}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -429,8 +432,8 @@ function ErrorDecoder() {
                             {/* Original mdata text from errors.js */}
                             {result.err.mdata && (
                                 <div style={{ background: "rgba(59,130,246,.06)", borderRadius: 10, border: `1px solid rgba(59,130,246,.2)`, padding: "10px 14px" }}>
-                                    <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.bl, marginBottom: 4, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>Estructura M-Data</div>
-                                    <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.6 }}>{result.err.mdata}</div>
+                                    <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.bl, marginBottom: 6, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>Estructura M-Data</div>
+                                    <div style={{ fontSize: 14, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.7 }}>{result.err.mdata}</div>
                                 </div>
                             )}
                         </>
