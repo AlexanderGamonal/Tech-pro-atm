@@ -313,7 +313,7 @@ export function LEDRefView() {
             <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: V.br, letterSpacing: 1, lineHeight: 1.15, margin: 0 }}>
                 BRM <span style={{ color: V.ac }}>Referencia</span>
             </h2>
-            <div style={{ fontSize: 11, color: V.dm, marginTop: 3, fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1.5px" }}>NCR BRM · Diagnostic Reference</div>
+            <div style={{ fontSize: 11, color: V.dm, marginTop: 3, fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1.5px" }}>NCR 6683/6687 · Cajero Reciclador</div>
             <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${V.ac}, transparent)`, margin: "8px auto 0" }} />
         </div>
     );

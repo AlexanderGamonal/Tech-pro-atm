@@ -293,6 +293,7 @@ function MStatusInput({ value, onChange }) {
 }
 
 function ErrorDecoder() {
+    const [devType, setDevType] = useState(""); // "s2" = dispensador 6623/6627 | "brm" = reciclador 6683/6687
     const [ms,   setMs]   = useState("");
     const [b1,   setB1]   = useState("");
     const [b2,   setB2]   = useState("");
@@ -302,17 +303,15 @@ function ErrorDecoder() {
     const [result, setResult] = useState(null);
 
     function decode() {
-        if (!ms) return;
+        if (!ms || !devType) return;
         const msInt = parseInt(ms, 10);
-        const errS2  = S2.find(e => e.code === msInt);
-        const errBRM = BRM.find(e => e.code === msInt);
-        const err = errS2 || errBRM;
-        const device = errS2 ? "s2" : errBRM ? "brm" : null;
-        const decoded = device === "s2" ? decodeS2Bytes(msInt, b1, b2, b3, b4) : [];
-        setResult({ ms: msInt, err, device, decoded, tcode });
+        const err = devType === "s2" ? S2.find(e => e.code === msInt) : BRM.find(e => e.code === msInt);
+        const decoded = devType === "s2" ? decodeS2Bytes(msInt, b1, b2, b3, b4) : [];
+        setResult({ ms: msInt, err, device: devType, decoded, tcode });
     }
 
     function reset() {
+        setDevType("");
         setMs(""); setB1(""); setB2(""); setB3("");
         setB4(""); setTcode(""); setResult(null);
     }
@@ -323,6 +322,30 @@ function ErrorDecoder() {
         <div style={{ padding: "0 14px 24px" }}>
             {/* Formula header */}
             <div style={{ background: theme.card, borderRadius: 12, border: `1px solid ${theme.bd}`, padding: "14px 12px", marginBottom: 14 }}>
+                {/* Device selector — requerido antes de decodificar */}
+                <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 8 }}>
+                        Equipo: <span style={{ color: theme.rd, fontWeight: 700 }}>*</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                        {[
+                            ["s2",  "S2 Dispenser",   "Dispensador · 6623/6627", theme.rd],
+                            ["brm", "BRM",             "Reciclador · 6683/6687",  theme.gn],
+                        ].map(([id, name, model, cl]) => (
+                            <button key={id} onClick={() => { setDevType(id); setResult(null); }} style={{
+                                flex: 1, padding: "10px 8px", borderRadius: 10,
+                                border: `1.5px solid ${devType === id ? cl : theme.bd}`,
+                                background: devType === id ? cl + "18" : "transparent",
+                                color: devType === id ? cl : theme.dm,
+                                fontFamily: fonts.display, fontSize: 13, fontWeight: devType === id ? 700 : 500,
+                                cursor: "pointer", textAlign: "center",
+                            }}>
+                                <div>{name}</div>
+                                <div style={{ fontFamily: fonts.mono, fontSize: 11, marginTop: 3, opacity: 0.85 }}>{model}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
                 <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, marginBottom: 12, lineHeight: 1.5 }}>
                     Ingresa los valores del <b style={{ color: theme.tx }}>Device Event Log</b>. M-Status en decimal (según Status Code Book). Bytes en hex (00–FF). T-Code opcional.
                 </div>
@@ -352,9 +375,9 @@ function ErrorDecoder() {
 
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                    <button onClick={decode} disabled={!ms} style={{
+                    <button onClick={decode} disabled={!ms || !devType} style={{
                         flex: 1, padding: "11px", borderRadius: 10, border: "none",
-                        background: ms ? theme.am : theme.bd, color: ms ? "#000" : theme.dm,
+                        background: ms && devType ? theme.am : theme.bd, color: ms && devType ? "#000" : theme.dm,
                         fontFamily: fonts.display, fontWeight: 700, fontSize: 13, cursor: ms ? "pointer" : "default",
                     }}>Decodificar</button>
                     <button onClick={reset} style={{
@@ -375,7 +398,7 @@ function ErrorDecoder() {
                                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                                     <span style={{ fontFamily: fonts.mono, fontSize: 22, fontWeight: 900, color: result.device === "s2" ? theme.rd : theme.gn }}>{result.ms}</span>
                                     <div>
-                                        <div style={{ fontSize: 12, fontFamily: fonts.mono, color: result.device === "s2" ? theme.rd : theme.gn, textTransform: "uppercase", letterSpacing: "1px" }}>M-Status · {result.device === "s2" ? "S2 Dispenser" : "BRM"}</div>
+                                        <div style={{ fontSize: 12, fontFamily: fonts.mono, color: result.device === "s2" ? theme.rd : theme.gn, textTransform: "uppercase", letterSpacing: "1px" }}>M-Status · {result.device === "s2" ? "S2 Dispenser · Dispensador 6623/6627" : "BRM · Reciclador 6683/6687"}</div>
                                         <div style={{ fontSize: 13, fontFamily: fonts.display, fontWeight: 600, color: theme.br, marginTop: 2 }}>{result.err.desc}</div>
                                     </div>
                                 </div>
@@ -412,7 +435,7 @@ function ErrorDecoder() {
                             )}
                         </>
                     ) : (
-                        <None icon="🔍" title={`M-Status ${result.ms} no encontrado`} subtitle="Verifica el código o revisa el Status Code Book" />
+                        <None icon="🔍" title={`M-Status ${result.ms} no encontrado`} subtitle={`Código no existe en ${result.device === "s2" ? "S2 Dispenser (dispensadores 6623/6627)" : "BRM (recicladores 6683/6687)"}. Verifica el código o el equipo seleccionado.`} />
                     )}
                 </div>
             )}
@@ -489,7 +512,7 @@ export function ErrorView({
 
                 {/* Device filter chips */}
                 <div className="ns" style={{ display: "flex", gap: 6, padding: "0 14px 8px", overflowX: "auto" }}>
-                    {[["all", "Todos"], ["s2", "S2 Dispenser"], ["brm", "BRM"], ["pcb", "Códigos PCB"], ["s2ref", "S2 M_DATA Ref"]].map(([v, l]) => (
+                    {[["all", "Todos"], ["s2", "S2 Dispensador (6623/6627)"], ["brm", "BRM Reciclador (6683/6687)"], ["pcb", "Códigos PCB BRM"], ["s2ref", "S2 M_DATA Ref"]].map(([v, l]) => (
                         <Chip key={v} active={deviceFilter === v} onClick={() => { onDeviceFilter(v); onCatFilter("all"); }}>{l}</Chip>
                     ))}
                 </div>
@@ -506,7 +529,7 @@ export function ErrorView({
 
                 {/* S2 results */}
                 {(deviceFilter === "all" || deviceFilter === "s2") && filteredS2.length > 0 && <>
-                    <Sec n={filteredS2.length}>S2 DISPENSER — 6627/6623</Sec>
+                    <Sec n={filteredS2.length}>S2 DISPENSER · CAJERO DISPENSADOR — 6623/6627</Sec>
                     {filteredS2.map((it, i) => (
                         <StatusCard key={`s2-${it.code}`} item={it} device="s2" index={i}
                             expanded={expanded} onToggle={onExpanded}
@@ -516,7 +539,7 @@ export function ErrorView({
 
                 {/* BRM results */}
                 {(deviceFilter === "all" || deviceFilter === "brm") && filteredBRM.length > 0 && <>
-                    <Sec n={filteredBRM.length}>USB BRM — 6687/6683</Sec>
+                    <Sec n={filteredBRM.length}>BRM · CAJERO RECICLADOR — 6683/6687</Sec>
                     {filteredBRM.map((it, i) => (
                         <StatusCard key={`brm-${it.code}`} item={it} device="brm" index={i}
                             expanded={expanded} onToggle={onExpanded}
@@ -565,8 +588,8 @@ export function ErrorView({
                                 Selecciona el equipo para ver sus componentes:
                             </div>
                             {[
-                                ["s2",    "S2 DISPENSER",   "NCR 6627 / 6623", "Dispensador de billetes",             theme.rd, theme.rdB, S2.length],
-                                ["brm",   "BRM",            "NCR 6687 / 6683", "Bunch Recycling Module — reciclaje",  theme.gn, theme.gnB, BRM.length],
+                                ["s2",    "S2 DISPENSER",   "NCR 6623 / 6627", "Cajero dispensador de billetes",                theme.rd, theme.rdB, S2.length],
+                                ["brm",   "BRM",            "NCR 6683 / 6687", "Cajero reciclador — depósito y dispensación",    theme.gn, theme.gnB, BRM.length],
                                 ["s2ref", "S2 M_DATA REF",  "M_STATUS 21-86",  "Tablas de decodificación de M_DATA",  theme.bl, "rgba(59,130,246,0.07)", ""],
                             ].map(([id, name, model, sub, cl, bg, n], i) => (
                                 <div key={id} className="nc" onClick={() => { onTreeOpen(id); onTreeComp(null); onExpanded(null); }}
@@ -606,7 +629,7 @@ export function ErrorView({
                             <BackButton onClick={() => { onTreeOpen(null); onTreeComp(null); }} label="Volver a equipos" />
                             <div style={{ fontSize: 13, fontWeight: 700, fontFamily: fonts.display, color: theme.br, marginBottom: 4 }}>
                                 {treeOpen === "s2" ? "S2 DISPENSER" : "BRM"}
-                                <span style={{ fontFamily: fonts.mono, fontSize: 13, color: theme.am, fontWeight: 500 }}> {treeOpen === "s2" ? "6627/6623" : "6687/6683"}</span>
+                                <span style={{ fontFamily: fonts.mono, fontSize: 13, color: theme.am, fontWeight: 500 }}> {treeOpen === "s2" ? "6623/6627 · Cajero Dispensador" : "6683/6687 · Cajero Reciclador"}</span>
                             </div>
                             <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, marginBottom: 12 }}>
                                 Selecciona el componente con problema:

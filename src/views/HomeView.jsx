@@ -14,7 +14,7 @@ export function HomeView({ setTab }) {
                         <div style={{ fontSize: "26px" }}>⚠️</div>
                         <div>
                             <div className="font-orbitron" style={{ fontSize: "17px", color: "var(--c-bright)" }}>Buscador de Errores</div>
-                            <div style={{ fontSize: "13px", color: "var(--c-dim)" }}>M_STATUS S2 & BRM</div>
+                            <div style={{ fontSize: "13px", color: "var(--c-dim)" }}>Dispensadores 6623/6627 · Recicladores 6683/6687</div>
                         </div>
                     </div>
                 </div>
@@ -24,7 +24,7 @@ export function HomeView({ setTab }) {
                         <div style={{ fontSize: "26px" }}>🔧</div>
                         <div>
                             <div className="font-orbitron" style={{ fontSize: "17px", color: "var(--c-bright)" }}>Catálogo de Partes</div>
-                            <div style={{ fontSize: "13px", color: "var(--c-dim)" }}>S2 & BRM Components</div>
+                            <div style={{ fontSize: "13px", color: "var(--c-dim)" }}>Partes S2 Dispensadores · BRM Recicladores</div>
                         </div>
                     </div>
                 </div>
