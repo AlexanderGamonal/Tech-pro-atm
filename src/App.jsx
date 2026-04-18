@@ -182,7 +182,7 @@ export default function App() {
                             color: "var(--c-accent)", cursor: "pointer", fontSize: 12,
                             fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
                             letterSpacing: ".5px", whiteSpace: "nowrap",
-                        }}>⬇ Instar</button> 
+                        }}>⬇ Instalar</button> 
                     )}
                     <button onClick={toggleTheme} className="nf" style={{
                         width: 36, height: 36, borderRadius: 8, border: "1px solid var(--c-border)",
