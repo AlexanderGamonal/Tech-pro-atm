@@ -157,6 +157,7 @@ export default function App() {
                             ←
                         </button>
                     )}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={goHome}>
                         <div style={{
                             width: "auto", minWidth: "36px", height: "30px", background: "var(--c-accent)",
                             padding: "0 6px",
