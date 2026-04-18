@@ -16,9 +16,9 @@ export default defineConfig({
         'brm-overview.png',
       ],
       manifest: {
-        name: 'NCR Tech Assistant',
-        short_name: 'NCR Tech',
-        description: 'Sistema de diagnóstico de campo para técnicos NCR — S2 Dispenser y BRM',
+        name: 'TECH PRO ATM',
+        short_name: 'TECH PRO ATM',
+        description: 'Sistema de diagnóstico de campo para cajeros automáticos — S2 Dispenser y BRM',
         theme_color: '#0a0c10',
         background_color: '#0a0c10',
         display: 'standalone',
