@@ -1,23 +1,26 @@
 import { useState } from "react";
 import { LedDot } from "../components/LedDot";
-import { UPPER_LEDS, LOWER_LEDS } from "../data/leds";
-import { DIAG_COMMANDS } from "../data/sensors";
+import { Sec, ICONS } from "../components/ui";
+import { theme, fonts } from "../theme";
+
+// ── Data Imports ─────────────────────────────────────────────────────────────
+// BRM
+import { UPPER_LEDS, LOWER_LEDS, LED_COLORS } from "../data/devices/ncr/brm/leds";
+import { DIAG_COMMANDS } from "../data/devices/ncr/brm/commands";
+import { BRM_COMPS, MOD_COLORS } from "../data/devices/ncr/brm/diagram";
+
+// S2
+import { SENSOR_TYPES } from "../data/shared/sensors";
+import { S2_UNITS, S2_SENSORS } from "../data/devices/ncr/s2/mdata";
 
 // ── shared helpers ────────────────────────────────────────────────────────────
-
 const V = {
-    bg:     "var(--c-bg)",
-    surf:   "var(--c-surf)",
-    card:   "var(--c-card)",
-    bd:     "var(--c-border)",
-    tx:     "var(--c-text)",
-    br:     "var(--c-bright)",
-    dm:     "var(--c-dim)",
-    ac:     "var(--c-accent)",
-    acBg:   "var(--c-accent-bg)",
-    acBd:   "var(--c-accent-bd)",
-    blue:   "var(--c-blue)",
-    amber:  "#f59e0b",
+    ...theme,
+    ac:    theme.am,
+    acBg:  theme.amG,
+    acBd:  theme.amBd,
+    surf:  theme.bg2,
+    amber: "#f59e0b",
 };
 
 function cardStyle() {
@@ -83,15 +86,6 @@ function LedDetailCard({ led }) {
 }
 
 // ── Interactive LED simulator ─────────────────────────────────────────────────
-
-function toCls(color, state) {
-    if (state === 0) return "loff";
-    if (color === "red")   return state === 1 ? "rs" : "rf";
-    if (color === "amber") return state === 1 ? "as" : "af";
-    if (color === "green") return state === 1 ? "gs" : "loff";
-    return "loff";
-}
-
 const LED_DESCS = {
     upper: {
         red:   ["Sin errores", "Pestillo abierto", "Atasco / Falla"],
@@ -119,15 +113,6 @@ const PRESETS = [
     ["⚫ Reset",         { upper:{red:0,amber:0,green:0}, inter:{red:0,green:0}, lower:{red:0,amber:0,green:0} }],
 ];
 
-function getModuleStatus(id, st) {
-    if (!st) return { text: "—", color: V.dm };
-    if (st.red === 2)        return { text: "Atasco / Falla grave", color: "var(--c-red)" };
-    if (st.red === 1)        return { text: "Pestillo abierto", color: "var(--c-red)" };
-    if ((st.amber || 0) >= 1)return { text: "Requiere reposición", color: V.amber };
-    if (st.green === 1)      return { text: "Módulo listo", color: "var(--c-green)" };
-    return { text: "Inoperativo / Sin energía", color: V.dm };
-}
-
 function InteractiveLEDs() {
     const initState = {
         upper: { red: 0, amber: 0, green: 0 },
@@ -136,18 +121,22 @@ function InteractiveLEDs() {
     };
     const [leds, setLeds] = useState(initState);
 
+    function toCls(color, state) {
+        if (state === 0) return "loff";
+        if (color === "red")   return state === 1 ? "rs" : "rf";
+        if (color === "amber") return state === 1 ? "as" : "af";
+        if (color === "green") return state === 1 ? "gs" : "loff";
+        return "loff";
+    }
+
     function cycle(mod, color) {
         setLeds(prev => {
             const cur = prev[mod][color];
             const next = (cur + 1) % 3;
             if (next === 0) {
-                // last state → off, leave others untouched
                 return { ...prev, [mod]: { ...prev[mod], [color]: 0 } };
             } else {
-                // turning on or advancing → reset all others in module to 0
-                const reset = Object.fromEntries(
-                    Object.keys(prev[mod]).map(k => [k, k === color ? next : 0])
-                );
+                const reset = Object.fromEntries(Object.keys(prev[mod]).map(k => [k, k === color ? next : 0]));
                 return { ...prev, [mod]: reset };
             }
         });
@@ -159,10 +148,19 @@ function InteractiveLEDs() {
         { id: "lower", label: "Lower Module",  colors: ["red", "amber", "green"] },
     ];
 
+    function getModuleStatus(id, st) {
+        if (!st) return { text: "—", color: V.dm };
+        if (st.red === 2)        return { text: "Atasco / Falla grave", color: "var(--c-red)" };
+        if (st.red === 1)        return { text: "Pestillo abierto", color: "var(--c-red)" };
+        if ((st.amber || 0) >= 1)return { text: "Requiere reposición", color: V.amber };
+        if (st.green === 1)      return { text: "Módulo listo", color: "var(--c-green)" };
+        return { text: "Inoperativo / Sin energía", color: V.dm };
+    }
+
     return (
         <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
             <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: V.ac, textTransform: "uppercase", padding: "8px 12px", borderBottom: `1px solid ${V.bd}`, background: V.acBg }}>
-                💡 Status Indicator LEDs — click LED para ciclar estado
+                💡 Status Indicator LEDs 
             </div>
             {MODULES.map(({ id, label, colors }) => {
                 const st = leds[id];
@@ -209,26 +207,6 @@ function InteractiveLEDs() {
 }
 
 // ── BRM Interactive Diagram ───────────────────────────────────────────────────
-
-const BRM_COMPS = [
-    { id: "pocket",       name: "Pocket",                           module: "Upper Module", fill: "#0f2d52", desc: "Bandeja de presentación de billetes al cliente. Recibe los billetes aceptados o retorna los rechazados para que el usuario los retire físicamente.", tags: ["presentación","retorno","cliente"] },
-    { id: "exc-upper",    name: "Upper Exception Bin",              module: "Upper Module", fill: "#2e1455", desc: "Contenedor de excepciones superior. Almacena temporalmente billetes problemáticos durante el proceso de validación o transporte en el módulo superior.", tags: ["excepciones","rechazo","superior"] },
-    { id: "bridge",       name: "Bridge / Centralisation Transport",module: "Upper Module", fill: "#0c3d40", desc: "Transporte puente de centralización. Conecta los sub-módulos del Upper Module y dirige los billetes hacia el validador, escrow o pocket según el flujo.", tags: ["transporte","centralización","routing"] },
-    { id: "escrow",       name: "Escrow",                           module: "Upper Module", fill: "#42103f", desc: "Módulo de retención temporal. Mantiene los billetes en suspenso mientras el sistema confirma la transacción. Si hay error, los billetes se devuelven al cliente.", tags: ["retención","temporal","reversión"] },
-    { id: "ut-front",     name: "Upper Transport (Front Side)",     module: "Upper Module", fill: "#173d18", desc: "Transporte superior — lado frontal. Gestiona el movimiento de billetes en la sección delantera del módulo superior, coordinando el flujo desde el pocket hacia el validador.", tags: ["transporte","frontal","superior"] },
-    { id: "bill-val",     name: "Bill Validator",                   module: "Upper Module", fill: "#472a0e", desc: "Validador de billetes. Verifica autenticidad (UV, IR, magnético, dimensión) y denominación. Núcleo de la aceptación; rechaza billetes falsos o dañados.", tags: ["validación","autenticidad","denominación","sensor"] },
-    { id: "ut-rear",      name: "Upper Transport (Rear Side)",      module: "Upper Module", fill: "#112040", desc: "Transporte superior — lado trasero. Gestiona el movimiento de billetes en la sección posterior del módulo superior, enlazando el validador con el escrow y el bridge.", tags: ["transporte","trasero","superior"] },
-    { id: "inter-transp", name: "Intermediate Transport",           module: "Interface",    fill: "#3d320a", desc: "Transporte intermedio. Enlace mecánico crítico entre el Upper Module y el Lower Module. Canaliza los billetes validados hacia las cassettes de reciclaje o el cassette de excepciones.", tags: ["interfaz","enlace","módulos"] },
-    { id: "lh-transp",    name: "Lower Horizontal Transport",       module: "Lower Module", fill: "#0a3020", desc: "Transporte horizontal inferior. Distribuye los billetes a lo largo del módulo inferior, enrutándolos hacia la cassette correcta según las instrucciones del controlador.", tags: ["transporte","horizontal","distribución"] },
-    { id: "vert-transp",  name: "Vertical Transport",               module: "Lower Module", fill: "#331c0a", desc: "Transporte vertical. Mueve billetes de forma vertical dentro del Lower Module, conectando el transporte horizontal con las cassettes de reciclaje.", tags: ["transporte","vertical","cassettes"] },
-    { id: "exc-lower",    name: "Lower Exception Cassette",         module: "Lower Module", fill: "#230e40", desc: "Cassette de excepciones inferior. Almacena definitivamente los billetes que no pudieron ser reciclados ni devueltos: billetes sospechosos, doblados o con error de transporte confirmado.", tags: ["excepciones","almacenamiento","rechazo definitivo"] },
-    { id: "rec1",         name: "Recycler Cassette 1",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #1. Almacena y dispensa billetes de una denominación específica. Puede recibir billetes durante depósitos y dispensarlos durante retiros.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec2",         name: "Recycler Cassette 2",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #2. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec3",         name: "Recycler Cassette 3",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #3. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
-    { id: "rec4",         name: "Recycler Cassette 4",              module: "Lower Module", fill: "#0b3012", desc: "Cassette recicladora #4. Almacena y dispensa billetes de una denominación específica.", tags: ["reciclaje","almacenamiento","dispensación"] },
-];
-
-const MOD_COLORS = { "Upper Module": "#58a6ff", "Lower Module": "#3fb950", "Interface": "#d29922" };
 const COMP_TEXT  = { fill: "#c8dcea", textAnchor: "middle", fontSize: 12, fontFamily: "IBM Plex Mono,monospace", fontWeight: "600" };
 
 function BrmDiagram() {
@@ -253,7 +231,7 @@ function BrmDiagram() {
         <div style={{ paddingBottom: 8 }}>
             <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 10, overflow: "hidden", marginBottom: 12 }}>
                 <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: "#4a90d9", textTransform: "uppercase", padding: "8px 12px", borderBottom: `1px solid ${V.bd}`, background: "rgba(74,144,217,.06)" }}>
-                    📐 BRM — Diagrama de componentes interactivo
+                    📐 BRM — Diagrama de componentes 
                 </div>
                 <svg viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block" }}>
                     <defs>
@@ -315,170 +293,248 @@ function BrmDiagram() {
 
 // ── Main view ─────────────────────────────────────────────────────────────────
 
-export function LEDRefView() {
+export function LEDRefView({ activeFamily }) {
     const [section, setSection] = useState(null);
     const [ledTab,  setLedTab]  = useState("overview");
+    const [nomExpanded, setNomExpanded] = useState(null);
 
-    const header = (
-        <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
-            <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: V.br, letterSpacing: 1, lineHeight: 1.15, margin: 0 }}>
-                BRM <span style={{ color: V.ac }}>Referencia</span>
-            </h2>
-            <div style={{ fontSize: 11, color: V.dm, marginTop: 3, fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1.5px" }}>NCR 6683/6687 · Cajero Reciclador</div>
-            <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${V.ac}, transparent)`, margin: "8px auto 0" }} />
-        </div>
-    );
-
-    // ── Level 1 ──────────────────────────────────────────────────────────────
-    if (!section) {
-        const cards = [
-            { id: "diagram", icon: "📐", title: "Diagrama BRM",     sub: "NCR 6687 / 6683", desc: "Componentes interactivos del módulo", color: "#4a90d9", bg: "rgba(74,144,217,.07)" },
-            { id: "leds",    icon: "💡", title: "LEDs Status",       sub: "Indicadores 1–16", desc: "Estado de LEDs por módulo",          color: V.ac,      bg: V.acBg },
-            { id: "ras",     icon: "🛠", title: "RAS / Diagnóstico", sub: "Direct Command",   desc: "Comandos de diagnóstico BRM",        color: V.amber,   bg: "rgba(245,158,11,.07)" },
-        ];
-        return (
-            <div style={{ padding: "14px 8px 32px", animation: "fi .3s ease" }}>
-                {header}
-                <div style={{ padding: "0 14px" }}>
-                    <div style={{ fontSize: 13, color: V.dm, marginBottom: 14 }}>Selecciona una sección:</div>
-                    {cards.map(({ id, icon, title, sub, desc, color, bg }) => (
-                        <div key={id} className="nc" onClick={() => setSection(id)}
-                            style={{ margin: "6px 0", padding: "16px", background: V.card, borderRadius: 12, border: `1px solid ${V.bd}`, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,.15)" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                                <div style={{ width: 46, height: 46, borderRadius: 10, background: bg, color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-                                    {icon}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: 16, fontWeight: 700, color: V.br }}>{title}</div>
-                                    <div style={{ fontSize: 12, color, fontFamily: "'Share Tech Mono', monospace", marginTop: 2 }}>{sub}</div>
-                                    <div style={{ fontSize: 13, color: V.dm, marginTop: 2 }}>{desc}</div>
-                                </div>
-                                <span style={{ fontSize: 20, color: V.dm }}>→</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+    // ── BRM (Recuperador) ──
+    if (activeFamily === "brm") {
+        const headerBRM = (
+            <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
+                <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: V.br, letterSpacing: 1, lineHeight: 1.15, margin: 0 }}>
+                    BRM <span style={{ color: V.gn }}>Referencia</span>
+                </h2>
+                <div style={{ fontSize: 11, color: V.dm, marginTop: 3, fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1.5px" }}>NCR 6683/6687 · Cajero Reciclador</div>
+                <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${V.gn}, transparent)`, margin: "8px auto 0" }} />
             </div>
         );
-    }
 
-    // ── BRM Diagram ──────────────────────────────────────────────────────────
-    if (section === "diagram") {
-        return (
-            <div style={{ padding: "14px 8px 32px", animation: "fi .3s ease" }}>
-                {header}
-                <div style={{ padding: "0 14px" }}>
-                    <BackBtn onClick={() => setSection(null)} label="Volver" />
-                    <BrmDiagram />
-                </div>
-            </div>
-        );
-    }
-
-    // ── RAS / Diagnóstico ────────────────────────────────────────────────────
-    if (section === "ras") {
-        return (
-            <div style={{ padding: "14px 8px 32px", animation: "fi .3s ease" }}>
-                {header}
-                <div style={{ padding: "0 14px" }}>
-                    <BackBtn onClick={() => setSection(null)} label="Volver" />
-                    <SectionTitle>COMANDOS RAS / DIAGNÓSTICO</SectionTitle>
-                    <div style={{ fontSize: 13, color: V.dm, marginBottom: 12, lineHeight: 1.6 }}>
-                        Ejecutar desde <b style={{ color: V.tx }}>Supervisor Mode → Diagnostics → Direct Command</b>.
-                    </div>
-                    {DIAG_COMMANDS.map(([cmd, desc]) => (
-                        <div key={cmd} style={{ display: "flex", gap: 14, alignItems: "center", background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, padding: "13px 14px", marginBottom: 7 }}>
-                            <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 15, fontWeight: 700, color: V.amber, minWidth: 72, letterSpacing: ".06em", flexShrink: 0 }}>{cmd}</span>
-                            <span style={{ fontSize: 13, color: V.tx, flex: 1 }}>{desc}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
-    // ── LEDs ─────────────────────────────────────────────────────────────────
-    return (
-        <div style={{ padding: "14px 8px 32px", animation: "fi .3s ease" }}>
-            {header}
-            <div style={{ padding: "0 8px" }}>
-                <div style={{ padding: "0 6px" }}>
-                    <BackBtn onClick={() => setSection(null)} label="Volver" />
-                </div>
-                <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${V.bd}`, marginBottom: 0 }}>
-                    {[["overview", "General"], ["upper", "Upper (1-9)"], ["lower", "Lower (10-16)"]].map(([id, label]) => (
-                        <button key={id} className="nf" onClick={() => setLedTab(id)} style={tabStyle(id, ledTab === id)}>{label}</button>
-                    ))}
-                </div>
-
-                {ledTab === "overview" && (
-                    <div style={cardStyle()}>
-                        <InteractiveLEDs />
-                        <SectionTitle>REFERENCIA — Estado General</SectionTitle>
-                        {[
-                            { title: "UPPER MODULE", rows: [
-                                { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto" },
-                                { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
-                                { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
-                                { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },
-                                { cls: "gs", label: "VERDE SÓLIDO",desc: "Listo para usar" },
-                            ]},
-                            { title: "LOWER MODULE", rows: [
-                                { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto o cassettes ausentes" },
-                                { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
-                                { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
-                                { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },
-                                { cls: "gs", label: "VERDE SÓLIDO",desc: "Listo para usar" },
-                            ]},
-                        ].map(({ title, rows }) => (
-                            <div key={title} style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
-                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 12, fontWeight: 700, color: V.br, letterSpacing: "1px", padding: "8px 12px", background: V.acBg, borderBottom: `1px solid ${V.bd}` }}>{title}</div>
-                                <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
-                                    {rows.map((r, i) => (
-                                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                                            <LedDot cls={r.cls} />
-                                            <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, minWidth: 90, flexShrink: 0, marginTop: 1 }}>{r.label}</span>
-                                            <span style={{ fontSize: 13, color: V.tx }}>{r.desc}</span>
-                                        </div>
-                                    ))}
+        if (!section) {
+            const cards = [
+                { id: "diagram", icon: "📐", title: "Diagrama BRM",     sub: "NCR 6687 / 6683", desc: "Componentes interactivos del módulo", color: "#4a90d9", bg: "rgba(74,144,217,.07)" },
+                { id: "leds",    icon: "💡", title: "LEDs Status",       sub: "Indicadores 1–16", desc: "Estado de LEDs por módulo",          color: V.ac,      bg: V.acBg },
+                { id: "ras",     icon: "🛠", title: "RAS / Diagnóstico", sub: "Direct Command",   desc: "Comandos de diagnóstico BRM",        color: V.amber,   bg: "rgba(245,158,11,.07)" },
+            ];
+            return (
+                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                    {headerBRM}
+                    <div style={{ padding: "0 14px" }}>
+                        <div style={{ fontSize: 13, color: V.dm, marginBottom: 14 }}>Selecciona una sección:</div>
+                        {cards.map(({ id, icon, title, sub, desc, color, bg }) => (
+                            <div key={id} className="nc" onClick={() => setSection(id)}
+                                style={{ margin: "6px 0", padding: "16px", background: V.card, borderRadius: 12, border: `1px solid ${V.bd}`, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,.15)" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                                    <div style={{ width: 46, height: 46, borderRadius: 10, background: bg, color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                                        {icon}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: 16, fontWeight: 700, color: V.br }}>{title}</div>
+                                        <div style={{ fontSize: 12, color, fontFamily: "'Share Tech Mono', monospace", marginTop: 2 }}>{sub}</div>
+                                        <div style={{ fontSize: 13, color: V.dm, marginTop: 2 }}>{desc}</div>
+                                    </div>
+                                    <span style={{ fontSize: 20, color: V.dm }}>→</span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                )}
+                </div>
+            );
+        }
 
-                {ledTab === "upper" && (
-                    <div style={cardStyle()}>
-                        <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
-                            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: V.ac, textTransform: "uppercase", padding: "8px 11px", borderBottom: `1px solid ${V.bd}`, background: V.acBg }}>
-                                📐 Upper Module — LEDs 1–9
-                            </div>
-                            <img src="/brm-upper.png" alt="Upper Module LED Diagram" style={{ width: "100%", display: "block" }} />
-                            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, padding: "6px 11px", letterSpacing: ".5px", borderTop: `1px solid ${V.bd}`, textAlign: "center" }}>
-                                Individual Area Status Indicator Light Panels
-                            </div>
-                        </div>
-                        <SectionTitle>LEDs 1–9 · Estado detallado</SectionTitle>
-                        {UPPER_LEDS.map(led => <LedDetailCard key={led.n} led={led} />)}
+        if (section === "diagram") {
+            return (
+                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                    {headerBRM}
+                    <div style={{ padding: "0 14px" }}>
+                        <BackBtn onClick={() => setSection(null)} label="Volver" />
+                        <BrmDiagram />
                     </div>
-                )}
+                </div>
+            );
+        }
 
-                {ledTab === "lower" && (
-                    <div style={cardStyle()}>
-                        <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
-                            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: V.ac, textTransform: "uppercase", padding: "8px 11px", borderBottom: `1px solid ${V.bd}`, background: V.acBg }}>
-                                📐 Lower Module — LEDs 10–16
-                            </div>
-                            <img src="/brm-lower.png" alt="Lower Module LED Diagram" style={{ width: "100%", display: "block" }} />
-                            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, padding: "6px 11px", letterSpacing: ".5px", borderTop: `1px solid ${V.bd}`, textAlign: "center" }}>
-                                Individual Area Status Indicator Light Panels
-                            </div>
+        if (section === "ras") {
+            return (
+                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                    {headerBRM}
+                    <div style={{ padding: "0 14px" }}>
+                        <BackBtn onClick={() => setSection(null)} label="Volver" />
+                        <SectionTitle>COMANDOS RAS / DIAGNÓSTICO</SectionTitle>
+                        <div style={{ fontSize: 13, color: V.dm, marginBottom: 12, lineHeight: 1.6 }}>
+                            Ejecutar desde <b style={{ color: V.tx }}>Supervisor Mode → Diagnostics → Direct Command</b>.
                         </div>
-                        <SectionTitle>LEDs 10–16 · Estado detallado</SectionTitle>
-                        {LOWER_LEDS.map(led => <LedDetailCard key={led.n} led={led} />)}
+                        {DIAG_COMMANDS.map(([cmd, desc]) => (
+                            <div key={cmd} style={{ display: "flex", gap: 14, alignItems: "center", background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, padding: "13px 14px", marginBottom: 7 }}>
+                                <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 15, fontWeight: 700, color: V.amber, minWidth: 72, letterSpacing: ".06em", flexShrink: 0 }}>{cmd}</span>
+                                <span style={{ fontSize: 13, color: V.tx, flex: 1 }}>{desc}</span>
+                            </div>
+                        ))}
                     </div>
-                )}
+                </div>
+            );
+        }
+
+        if (section === "leds") {
+            return (
+                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                    {headerBRM}
+                    <div style={{ padding: "0 8px" }}>
+                        <div style={{ padding: "0 6px" }}>
+                            <BackBtn onClick={() => setSection(null)} label="Volver" />
+                        </div>
+                        <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${V.bd}`, marginBottom: 0 }}>
+                            {[["overview", "General"], ["upper", "Upper (1-9)"], ["lower", "Lower (10-16)"]].map(([id, label]) => (
+                                <button key={id} className="nf" onClick={() => setLedTab(id)} style={tabStyle(id, ledTab === id)}>{label}</button>
+                            ))}
+                        </div>
+
+                        {ledTab === "overview" && (
+                            <div style={cardStyle()}>
+                                <InteractiveLEDs />
+                                <SectionTitle>REFERENCIA — Estado General</SectionTitle>
+                                {[
+                                    { title: "UPPER MODULE", rows: [
+                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto" },
+                                        { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
+                                        { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
+                                        { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },
+                                        { cls: "gs", label: "VERDE SÓLIDO",desc: "Listo para usar" },
+                                    ]},
+                                    { title: "LOWER MODULE", rows: [
+                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto o cassettes ausentes" },
+                                        { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
+                                        { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
+                                        { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },
+                                        { cls: "gs", label: "VERDE SÓLIDO",desc: "Listo para usar" },
+                                    ]},
+                                ].map(({ title, rows }) => (
+                                    <div key={title} style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
+                                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 12, fontWeight: 700, color: V.br, letterSpacing: "1px", padding: "8px 12px", background: V.acBg, borderBottom: `1px solid ${V.bd}` }}>{title}</div>
+                                        <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
+                                            {rows.map((r, i) => (
+                                                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                                                    <LedDot cls={r.cls} />
+                                                    <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, minWidth: 90, flexShrink: 0, marginTop: 1 }}>{r.label}</span>
+                                                    <span style={{ fontSize: 13, color: V.tx }}>{r.desc}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {ledTab === "upper" && (
+                            <div style={cardStyle()}>
+                                <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
+                                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: V.ac, textTransform: "uppercase", padding: "8px 11px", borderBottom: `1px solid ${V.bd}`, background: V.acBg }}>
+                                        📐 Upper Module — LEDs 1–9
+                                    </div>
+                                    <img src="/brm-upper.png" alt="Upper Module LED Diagram" style={{ width: "100%", display: "block" }} />
+                                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, padding: "6px 11px", letterSpacing: ".5px", borderTop: `1px solid ${V.bd}`, textAlign: "center" }}>
+                                        Individual Area Status Indicator Light Panels
+                                    </div>
+                                </div>
+                                <SectionTitle>LEDs 1–9 · Estado detallado</SectionTitle>
+                                {UPPER_LEDS.map(led => <LedDetailCard key={led.n} led={led} />)}
+                            </div>
+                        )}
+
+                        {ledTab === "lower" && (
+                            <div style={cardStyle()}>
+                                <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
+                                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, letterSpacing: "1.5px", color: V.ac, textTransform: "uppercase", padding: "8px 11px", borderBottom: `1px solid ${V.bd}`, background: V.acBg }}>
+                                        📐 Lower Module — LEDs 10–16
+                                    </div>
+                                    <img src="/brm-lower.png" alt="Lower Module LED Diagram" style={{ width: "100%", display: "block" }} />
+                                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12, color: V.dm, padding: "6px 11px", letterSpacing: ".5px", borderTop: `1px solid ${V.bd}`, textAlign: "center" }}>
+                                        Individual Area Status Indicator Light Panels
+                                    </div>
+                                </div>
+                                <SectionTitle>LEDs 10–16 · Estado detallado</SectionTitle>
+                                {LOWER_LEDS.map(led => <LedDetailCard key={led.n} led={led} />)}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    // ── S2 Sensores / Nomenclatura ──
+    if (activeFamily === "s2") {
+        const shadow = `0 1px 3px rgba(0,0,0,.25)`;
+        return (
+            <div style={{ padding: "0px", animation: "fi .3s ease" }}>
+                <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
+                    <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: V.br, letterSpacing: 1, lineHeight: 1.15, margin: 0 }}>
+                        S2 <span style={{ color: V.rd }}>Sensores</span>
+                    </h2>
+                    <div style={{ fontSize: 11, color: V.dm, marginTop: 3, fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1.5px" }}>NCR 6623/6627 · Cajero Dispensador</div>
+                    <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${V.rd}, transparent)`, margin: "8px auto 0" }} />
+                </div>
+
+                <div style={{ padding: "0 14px 20px" }}>
+                    <Sec n={SENSOR_TYPES.length}>PREFIJOS DE SENSORES / ACTUADORES</Sec>
+                    <div style={{ padding: "0 14px 8px" }}>
+                        <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.5 }}>
+                            Prefijo que identifica el tipo de sensor o actuador en la nomenclatura NCR.
+                        </div>
+                    </div>
+                    {SENSOR_TYPES.map(([prefix, desc]) => (
+                        <div key={prefix} style={{ margin: "4px 14px", padding: "12px 16px", background: theme.card, borderRadius: 10, border: `1px solid ${theme.bd}`, boxShadow: shadow, display: "flex", gap: 14, alignItems: "center" }}>
+                            <span style={{ fontFamily: fonts.mono, fontSize: 16, fontWeight: 700, color: theme.pr, minWidth: 40, letterSpacing: ".04em" }}>{prefix}</span>
+                            <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.tx, flex: 1 }}>{desc}</span>
+                        </div>
+                    ))}
+
+                    <div style={{ marginTop: 24 }} />
+                    <Sec n={S2_UNITS.length}>UNIDADES S2 — BYTE 1 DE M_DATA</Sec>
+                    <div style={{ padding: "0 14px 8px" }}>
+                        <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.5 }}>
+                            Valor hexadecimal que identifica la unidad en los datos adicionales (M_DATA) del S2 Dispenser.
+                        </div>
+                    </div>
+                    {S2_UNITS.map(u => (
+                        <div key={u.hex} style={{ margin: "4px 14px", padding: "12px 16px", background: theme.card, borderRadius: 10, border: `1px solid ${theme.bd}`, boxShadow: shadow, display: "flex", gap: 14, alignItems: "center" }}>
+                            <span style={{ fontFamily: fonts.mono, fontSize: 16, fontWeight: 700, color: theme.am, minWidth: 40, letterSpacing: ".04em" }}>{u.hex}</span>
+                            <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.tx, flex: 1 }}>{u.label}</span>
+                        </div>
+                    ))}
+
+                    <div style={{ marginTop: 24 }} />
+                    <Sec n={S2_SENSORS.length}>SENSORES POR UNIDAD — S2 DISPENSER</Sec>
+                    <div style={{ padding: "0 14px 8px" }}>
+                        <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.5 }}>
+                            ID de sensor (Byte 4 de M_DATA) para fallas tipo Sensor / Cambio inesperado, por unidad.
+                        </div>
+                    </div>
+                    {S2_SENSORS.map((s, i) => {
+                        const id = `nom-${s.unit}`;
+                        const isOpen = nomExpanded === id;
+                        return (
+                            <div key={s.unit} className="nc" onClick={() => setNomExpanded(isOpen ? null : id)}
+                                style={{ margin: "5px 14px", padding: "14px 16px", background: theme.card, borderRadius: 12, border: `1px solid ${isOpen ? theme.prBd : theme.bd}`, cursor: "pointer", boxShadow: isOpen ? `0 4px 20px ${theme.prB}` : shadow, animation: `nF .3s ease ${i * .03}s both`, transition: "border-color .2s" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: 13, fontFamily: fonts.display, fontWeight: 600, color: theme.br }}>{s.unit}</span>
+                                    <span style={{ color: theme.dm }}>{isOpen ? ICONS.arrowDown : ICONS.arrowRight}</span>
+                                </div>
+                                {isOpen && (
+                                    <div style={{ marginTop: 10, padding: "10px 12px", background: theme.bg2, borderRadius: 8, border: `1px solid ${theme.bd}`, animation: "nF .2s ease" }}>
+                                        {s.sensors.map(sen => (
+                                            <div key={sen.id} style={{ display: "flex", gap: 12, alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${theme.bd}` }}>
+                                                <span style={{ fontFamily: fonts.mono, fontSize: 13, fontWeight: 700, color: theme.pr, minWidth: 28 }}>{sen.id}</span>
+                                                <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.tx }}>{sen.name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 }

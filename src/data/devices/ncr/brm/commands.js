@@ -1,16 +1,4 @@
-// Prefijos de tipos de sensor
-export const SENSOR_TYPES = [
-    ["PI", "Photo Interruptor (sensor óptico)"],
-    ["SW", "Switch (interruptor)"],
-    ["PS", "Photo Sensor (foto sensor)"],
-    ["RS", "Rotary Swing / Solenoide"],
-    ["BM", "Brushless DC Motor (motor sin escobillas)"],
-    ["DM", "DC Motor (motor de corriente continua)"],
-    ["SM", "Stepper Motor (motor paso a paso)"],
-    ["SD", "Solenoide"],
-];
-
-// Comandos de diagnóstico y calibración BRM
+// Comandos de diagnóstico y calibración BRM (RAS)
 export const DIAG_COMMANDS = [
     ["07 01", "Reset de módulo"],
     ["01 11 01", "Transport Test: Pocket → Dispense"],

@@ -1,4 +1,4 @@
-import { LED_COLORS } from "../data/leds";
+import { LED_COLORS } from "../data/devices/ncr/brm/leds";
 
 export function LedDot({ cls, size = 11 }) {
     const c = LED_COLORS[cls] || LED_COLORS.loff;

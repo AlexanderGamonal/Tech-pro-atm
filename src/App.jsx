@@ -2,14 +2,18 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { injectCSS, applyTheme } from "./theme";
 import { useFavorites } from "./hooks/useFavorites";
 import { NavButton } from "./components/NavButton";
-import { HomeView }  from "./views/HomeView";
+
+// Vistas nuevas (Jerarquía)
+import { BrandsView } from "./views/brands/BrandsView";
+import { FamilyListView } from "./views/device/FamilyListView";
+import { FamilyDetailView } from "./views/device/FamilyDetailView";
+
+// Vistas de herramientas (adaptadas a activeFamily luego)
 import { ErrorView } from "./views/ErrorView";
 import { PartsView } from "./views/PartsView";
 import { LEDRefView } from "./views/LEDRefView";
-import { S2, BRM } from "./data/errors";
-import { ALLP } from "./data/parts";
 
-const TABS = { HOME: "home", ERRORS: "errors", PARTS: "parts", LEDS: "leds" };
+import { brandsCatalog } from "./data/catalog/brands";
 
 export default function App() {
     const [isDark, setIsDark] = useState(() => {
@@ -17,7 +21,6 @@ export default function App() {
         return saved ? saved === "dark" : true;
     });
 
-    // ── PWA install prompt ──
     const [installPrompt, setInstallPrompt] = useState(null);
     const [installed, setInstalled] = useState(false);
 
@@ -40,103 +43,92 @@ export default function App() {
         });
     }, []);
 
-    // ── Navigation ──
-    const [tab, setTab] = useState(TABS.HOME);
+    // ── Navigation State (Jerarquía) ──
+    const [nav, setNav] = useState({ brand: null, family: null, section: null });
 
-    // ── Search & filters ──
-    const [query, setQuery]         = useState("");
+    const goHome = useCallback(() => setNav({ brand: null, family: null, section: null }), []);
+    const selectBrand = useCallback((b) => setNav({ brand: b, family: null, section: null }), []);
+    const selectFamily = useCallback((f) => setNav(prev => ({ ...prev, family: f, section: null })), []);
+    const selectSection = useCallback((s) => setNav(prev => ({ ...prev, section: s })), []);
+
+    // ── Bottom Nav Bar Logic ──
+    // Se muestra sólo si estamos dentro de una familia
+    const activeBrandData = nav.brand ? brandsCatalog.find(b => b.id === nav.brand) : null;
+    const activeFamData = activeBrandData && nav.family ? activeBrandData.families.find(f => f.id === nav.family) : null;
+
+    // ── Search & filters (reset upon unmount or nav) ──
+    const [query, setQuery] = useState("");
     const [deviceFilter, setDeviceFilter] = useState("all");
-    const [catFilter, setCatFilter]       = useState("all");
+    const [catFilter, setCatFilter] = useState("all");
     const inputRef = useRef(null);
-    const queryLower = query.toLowerCase().trim();
 
-    // ── Error tree state ──
-    const [errMode, setErrMode]     = useState("tree");
-    const [treeOpen, setTreeOpen]   = useState(null);
-    const [treeComp, setTreeComp]   = useState(null);
-
-    // ── Parts tree state ──
+    const [errMode, setErrMode] = useState("tree");
+    const [treeOpen, setTreeOpen] = useState(null);
+    const [treeComp, setTreeComp] = useState(null);
     const [partsOpen, setPartsOpen] = useState(null);
-
-    // ── Expanded card ──
-    const [expanded, setExpanded]   = useState(null);
+    const [expanded, setExpanded] = useState(null);
     const toggleExpanded = useCallback((id) => setExpanded(prev => prev === id ? null : id), []);
 
-    // ── Favorites (persisted) ──
     const { favorites, toggleFavorite } = useFavorites();
 
-    // ── Memoized filters ──
-    const filteredS2 = useMemo(() => S2.filter(s =>
-        (deviceFilter === "all" || deviceFilter === "s2") &&
-        (catFilter === "all" || s.cat === catFilter) &&
-        (queryLower === "" ||
-            String(s.code).includes(queryLower) ||
-            s.desc.toLowerCase().includes(queryLower) ||
-            s.cat.toLowerCase().includes(queryLower) ||
-            s.catEs.toLowerCase().includes(queryLower) ||
-            (s.mdata || "").toLowerCase().includes(queryLower))
-    ), [queryLower, deviceFilter, catFilter]);
-
-    const filteredBRM = useMemo(() => BRM.filter(b =>
-        (deviceFilter === "all" || deviceFilter === "brm") &&
-        (catFilter === "all" || b.cat === catFilter) &&
-        (queryLower === "" ||
-            String(b.code).includes(queryLower) ||
-            b.desc.toLowerCase().includes(queryLower) ||
-            b.cat.toLowerCase().includes(queryLower) ||
-            b.catEs.toLowerCase().includes(queryLower) ||
-            (b.mdata || "").toLowerCase().includes(queryLower))
-    ), [queryLower, deviceFilter, catFilter]);
-
-    const filteredParts = useMemo(() => ALLP.filter(p =>
-        queryLower === "" ||
-        p.pn.toLowerCase().includes(queryLower) ||
-        p.d.toLowerCase().includes(queryLower) ||
-        p.m.toLowerCase().includes(queryLower)
-    ), [queryLower]);
-
-    const allCategories = useMemo(() =>
-        [...new Set([...S2.map(s => s.cat), ...BRM.map(b => b.cat)])].sort()
-    , []);
-
-    // Reset query and filters when changing tabs
-    const handleTabChange = useCallback((newTab) => {
-        setTab(newTab);
+    // Reset transients on section change
+    useEffect(() => {
         setQuery("");
         setExpanded(null);
         setDeviceFilter("all");
         setCatFilter("all");
-    }, []);
+        setTreeOpen(null);
+        setPartsOpen(null);
+    }, [nav.section, nav.family]);
+
 
     const renderView = () => {
-        switch (tab) {
-            case TABS.HOME:   return <HomeView setTab={handleTabChange} />;
-            case TABS.LEDS:   return <LEDRefView />;
-            case TABS.ERRORS: return (
-                <ErrorView
-                    query={query} onQueryChange={setQuery} inputRef={inputRef}
-                    deviceFilter={deviceFilter} onDeviceFilter={setDeviceFilter}
-                    catFilter={catFilter} onCatFilter={setCatFilter}
-                    errMode={errMode} onErrMode={setErrMode}
-                    treeOpen={treeOpen} onTreeOpen={setTreeOpen}
-                    treeComp={treeComp} onTreeComp={setTreeComp}
-                    expanded={expanded} onExpanded={toggleExpanded}
-                    filteredS2={filteredS2} filteredBRM={filteredBRM}
-                    allCategories={allCategories}
-                    favorites={favorites} onToggleFav={toggleFavorite}
-                />
-            );
-            case TABS.PARTS:  return (
-                <PartsView
-                    query={query} onQueryChange={setQuery} inputRef={inputRef}
-                    partsOpen={partsOpen} onPartsOpen={setPartsOpen}
-                    expanded={expanded} onExpanded={toggleExpanded}
-                    filteredParts={filteredParts}
-                    favorites={favorites} onToggleFav={toggleFavorite}
-                />
-            );
-            default: return <HomeView setTab={handleTabChange} />;
+        if (nav.section) {
+            // Render specific tool passing context
+            switch (nav.section) {
+                case "errors":
+                    return <ErrorView 
+                        activeFamily={nav.family}
+                        query={query} onQueryChange={setQuery} inputRef={inputRef}
+                        deviceFilter={deviceFilter} onDeviceFilter={setDeviceFilter}
+                        catFilter={catFilter} onCatFilter={setCatFilter}
+                        errMode={errMode} onErrMode={setErrMode}
+                        treeOpen={treeOpen} onTreeOpen={setTreeOpen}
+                        treeComp={treeComp} onTreeComp={setTreeComp}
+                        expanded={expanded} onExpanded={toggleExpanded}
+                        favorites={favorites} onToggleFav={toggleFavorite}
+                    />;
+                case "parts":
+                    return <PartsView 
+                        activeFamily={nav.family}
+                        query={query} onQueryChange={setQuery} inputRef={inputRef}
+                        partsOpen={partsOpen} onPartsOpen={setPartsOpen}
+                        expanded={expanded} onExpanded={toggleExpanded}
+                        favorites={favorites} onToggleFav={toggleFavorite}
+                    />;
+                case "reference":
+                case "sensors":
+                    return <LEDRefView activeFamily={nav.family} />;
+                default:
+                    return <div>Under construction</div>;
+            }
         }
+        if (nav.family) {
+            return <FamilyDetailView 
+                activeBrand={nav.brand} 
+                activeFamily={nav.family} 
+                onSelectSection={selectSection} 
+                onBack={() => selectBrand(nav.brand)} 
+            />;
+        }
+        if (nav.brand) {
+            return <FamilyListView 
+                activeBrand={nav.brand} 
+                onSelectFamily={selectFamily} 
+                onBack={goHome} 
+            />;
+        }
+        return <BrandsView onSelectBrand={selectBrand} />;
     };
 
     return (
@@ -151,17 +143,34 @@ export default function App() {
                 borderBottom: "1px solid var(--c-border)",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{
-                        width: "30px", height: "30px", background: "var(--c-accent)",
-                        borderRadius: "6px", display: "flex", alignItems: "center",
-                        justifyContent: "center", color: "var(--c-bg)", fontWeight: "bold",
-                        fontFamily: "'Orbitron', sans-serif", fontSize: "14px",
-                    }}>N</div>
-                    <div className="font-orbitron" style={{ fontSize: "14px", color: "var(--c-accent)" }}>NCR TECH</div>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {(nav.brand || nav.family || nav.section) && (
+                        <button onClick={() => {
+                            if (nav.section) selectSection(null);
+                            else if (nav.family) selectBrand(nav.brand);
+                            else goHome();
+                        }} className="nf" style={{
+                            background: "transparent", border: "none", color: "var(--c-text)",
+                            fontSize: "22px", cursor: "pointer", padding: "0 4px 0 0",
+                            display: "flex", alignItems: "center", justifyContent: "center"
+                        }}>
+                            ←
+                        </button>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={goHome}>
+                        <div style={{
+                            width: "30px", height: "30px", background: "var(--c-accent)",
+                            borderRadius: "6px", display: "flex", alignItems: "center",
+                            justifyContent: "center", color: "var(--c-bg)", fontWeight: "bold",
+                            fontFamily: "'Orbitron', sans-serif", fontSize: "14px",
+                        }}>T</div>
+                        <div className="font-orbitron" style={{ fontSize: "14px", color: "var(--c-accent)", letterSpacing: "1px" }}>
+                            TECH PRO ATM
+                        </div>
+                    </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ fontSize: "12px", color: "var(--c-dim)", fontFamily: "'Share Tech Mono'" }}>v2.1.0</div>
+                    <div style={{ fontSize: "12px", color: "var(--c-dim)", fontFamily: "'Share Tech Mono'" }}>v3.0.0</div>
                     {installPrompt && !installed && (
                         <button onClick={async () => {
                             installPrompt.prompt();
@@ -173,7 +182,7 @@ export default function App() {
                             color: "var(--c-accent)", cursor: "pointer", fontSize: 12,
                             fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
                             letterSpacing: ".5px", whiteSpace: "nowrap",
-                        }}>⬇ Instalar</button>
+                        }}>⬇ Instar</button> 
                     )}
                     <button onClick={toggleTheme} className="nf" style={{
                         width: 36, height: 36, borderRadius: 8, border: "1px solid var(--c-border)",
@@ -183,23 +192,9 @@ export default function App() {
                 </div>
             </header>
 
-            <main style={{ paddingTop: "62px", paddingBottom: "70px" }}>
+            <main style={{ paddingTop: "62px", paddingBottom: "20px" }}>
                 {renderView()}
             </main>
-
-            <nav style={{
-                position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200,
-                background: "var(--c-nav-bg)",
-                backdropFilter: "blur(12px)",
-                borderTop: "1px solid var(--c-border)",
-                display: "flex",
-                paddingBottom: "env(safe-area-inset-bottom)",
-            }}>
-                <NavButton active={tab === TABS.HOME}   onClick={() => handleTabChange(TABS.HOME)}   icon="🏠" label="Inicio" />
-                <NavButton active={tab === TABS.ERRORS} onClick={() => handleTabChange(TABS.ERRORS)} icon="⚠️" label="Errores" />
-                <NavButton active={tab === TABS.PARTS}  onClick={() => handleTabChange(TABS.PARTS)}  icon="🔧" label="Partes" />
-                <NavButton active={tab === TABS.LEDS}   onClick={() => handleTabChange(TABS.LEDS)}   icon="🛠" label="BRM Ref" />
-            </nav>
         </div>
     );
 }

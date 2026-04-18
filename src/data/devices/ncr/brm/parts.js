@@ -1,29 +1,4 @@
-export const S2P = [
-    { pn: "445-0732256", d: "S2 Presenter F/A FRU (presentador completo acceso frontal)", m: "Presenter", eq: "S2" },
-    { pn: "445-0729119", d: "F/A Carriage Assembly (carro de transporte acceso frontal)", m: "Carriage", eq: "S2" },
-    { pn: "445-0731333", d: "Assy - Presenter Core F/A (núcleo del presentador frontal)", m: "Presenter", eq: "S2" },
-    { pn: "445-0756047", d: "Air Filter (filtro de aire del sistema de vacío)", m: "Presenter", eq: "S2" },
-    { pn: "445-0731632", d: "Motor/Pump Assembly FRU (motor y bomba de vacío)", m: "Motor", eq: "S2" },
-    { pn: "445-0729811", d: "SNT TLA Assembly (Single Note Transport — transporte de billete individual)", m: "SNT", eq: "S2" },
-    { pn: "445-0736562", d: "Assy - Reference Edge FRU (borde de referencia del alineador BAM)", m: "Aligner", eq: "S2" },
-    { pn: "445-0731307", d: "F/A Short Nose FRU (nariz corta acceso frontal)", m: "Nose", eq: "S2" },
-    { pn: "445-0732257", d: "S2 Presenter R/A FRU (presentador completo acceso trasero)", m: "Presenter", eq: "S2" },
-    { pn: "445-0729120", d: "R/A Carriage Assembly (carro de transporte acceso trasero)", m: "Carriage", eq: "S2" },
-    { pn: "445-0731334", d: "Assy - Presenter Core R/A (núcleo del presentador trasero)", m: "Presenter", eq: "S2" },
-    { pn: "445-0731305", d: "R/A Mid Nose FRU (nariz mediana acceso trasero)", m: "Nose", eq: "S2" },
-    { pn: "445-0736668", d: "S2 Pick Module Assembly (módulo de pique completo)", m: "Pick", eq: "S2" },
-    { pn: "445-0755466", d: "4 High Support Assembly Service (estructura soporte 4 cassettes)", m: "Frame", eq: "S2" },
-    { pn: "445-0756605", d: "S2 Double Pick Dual Sensor (doble pique con sensor dual)", m: "Pick", eq: "S2" },
-    { pn: "009-0026464", d: "S2 Suction Cup (ventosa para sistema de vacío)", m: "Vacuum", eq: "S2" },
-    { pn: "445-0731226", d: "SOH LED Assembly (indicador LED de estado de salud)", m: "LED", eq: "S2" },
-    { pn: "445-0689215", d: "Cassette Assembly Non TI (gaveta de billetes sin TI)", m: "Cassette", eq: "S2" },
-    { pn: "445-0751775", d: "S2 Cassette Latch (traba de seguridad del cassette)", m: "Cassette", eq: "S2" },
-    { pn: "445-0756691", d: "LatchFast Bin Assembly (bin de purga con traba rápida)", m: "Purge Bin", eq: "S2" },
-    { pn: "445-0749347", d: "S2 Dispenser Control Board (placa controladora principal del dispensador)", m: "PCB", eq: "S2" },
-    { pn: "445-0734103", d: "S2 Dual Cassette ID PCB Assembly (placa de identificación de cassettes)", m: "PCB", eq: "S2" },
-];
-
-export const BRMP = [
+export const BRM_PARTS = [
     { pn: "0090029370", d: "Pocket sin guías", m: "Pocket", eq: "BRM" },
     { pn: "0090035943", d: "BRM Pocket con guías anchas (completo)", m: "Pocket", eq: "BRM" },
     { pn: "0090029132", d: "BRM Wide Guide Set (juego de guías anchas)", m: "Pocket", eq: "BRM" },
@@ -81,5 +56,3 @@ export const BRMP = [
     { pn: "0090030507", d: "Cassette Latch — traba de purga", m: "Cassette", eq: "BRM" },
     { pn: "0090029579", d: "Cassette Latch — traba de caseteras", m: "Cassette", eq: "BRM" },
 ];
-
-export const ALLP = [...S2P, ...BRMP];
