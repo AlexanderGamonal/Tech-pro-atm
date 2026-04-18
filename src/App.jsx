@@ -166,7 +166,7 @@ export default function App() {
                             fontFamily: "'Orbitron', sans-serif", fontSize: "14px",
                         }}>ATM</div>
                         <div className="font-orbitron" style={{ fontSize: "14px", color: "var(--c-accent)", letterSpacing: "1px" }}>
-                            TECH PRO ATM
+                            TECH PRO
                         </div>
                     </div>
                 </div>

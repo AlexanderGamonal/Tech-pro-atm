@@ -8,16 +8,14 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [
-        'icons/favicon-16x16.png',
-        'icons/favicon-32x32.png',
-        'icons/apple-touch-icon.png',
+        'logo.png',
         'brm-lower.png',
         'brm-upper.png',
         'brm-overview.png',
       ],
       manifest: {
-        name: 'TECH PRO ATM',
-        short_name: 'TECH PRO ATM',
+        name: 'TECH PRO',
+        short_name: 'TECH PRO',
         description: 'Sistema de diagnóstico de campo para cajeros automáticos — S2 Dispenser y BRM',
         theme_color: '#0a0c10',
         background_color: '#0a0c10',
@@ -27,10 +25,10 @@ export default defineConfig({
         start_url: '/',
         lang: 'es',
         icons: [
-          { src: 'icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: 'icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'logo.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: 'logo.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
