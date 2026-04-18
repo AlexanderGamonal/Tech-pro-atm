@@ -157,13 +157,13 @@ export default function App() {
                             ←
                         </button>
                     )}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={goHome}>
                         <div style={{
-                            width: "30px", height: "30px", background: "var(--c-accent)",
+                            width: "auto", minWidth: "36px", height: "30px", background: "var(--c-accent)",
+                            padding: "0 6px",
                             borderRadius: "6px", display: "flex", alignItems: "center",
                             justifyContent: "center", color: "var(--c-bg)", fontWeight: "bold",
                             fontFamily: "'Orbitron', sans-serif", fontSize: "14px",
-                        }}>T</div>
+                        }}>ATM</div>
                         <div className="font-orbitron" style={{ fontSize: "14px", color: "var(--c-accent)", letterSpacing: "1px" }}>
                             TECH PRO ATM
                         </div>
