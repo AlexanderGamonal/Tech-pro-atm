@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, ReactNode } from "react";
+import { useParams } from "react-router-dom";
 import { theme, fonts, getCategoryLabel } from "../theme";
-import { SearchBar, Chip, Sec, None, Tag, StatusCard, ICONS, BackButton } from "../components/ui";
+import { SearchBar, Chip, Sec, None, Tag, StatusCard, ErrorSummaryCard, ICONS, BackButton } from "../components/ui";
 
 // Data imports
 import { S2_ERRORS } from "../data/devices/ncr/s2/errors";
@@ -9,28 +10,6 @@ import { S2_UNITS, S2_OP_POINTS, S2_SENSOR_FAIL, S2_SENSORS, S2_MECH_FAULTS, S2_
 
 import { BRM_ERRORS, BRM_MOD, BRM_COMMANDS, BRM_MDATA_DETAILS, BRM_RESULTS } from "../data/devices/ncr/brm/errors";
 import { BRM_TREE } from "../data/devices/ncr/brm/trees";
-
-// ── S2 M_DATA Reference Component ──
-function RefRow({ hex, label }) {
-    return (
-        <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "9px 14px", borderBottom: `1px solid ${theme.bd}` }}>
-            <span style={{ fontFamily: fonts.mono, fontSize: 13, fontWeight: 700, color: theme.am, minWidth: 36 }}>{hex}</span>
-            <span style={{ fontSize: 12, fontFamily: fonts.display, color: theme.tx, flex: 1 }}>{label}</span>
-        </div>
-    );
-}
-
-function RefSection({ title, note, children }) {
-    return (
-        <div style={{ margin: "8px 14px" }}>
-            <div style={{ fontSize: 12, fontWeight: 700, fontFamily: fonts.display, color: theme.bl, letterSpacing: "1.2px", textTransform: "uppercase", padding: "8px 0 4px" }}>{title}</div>
-            {note && <div style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.5, marginBottom: 6 }}>{note}</div>}
-            <div style={{ background: theme.card, borderRadius: 10, border: `1px solid ${theme.bd}`, overflow: "hidden" }}>
-                {children}
-            </div>
-        </div>
-    );
-}
 
 // ── S2 Data logic maps ──
 const REQ_INHIBIT_REASONS = [
@@ -44,24 +23,26 @@ const REQ_INHIBIT_REASONS = [
 const NOT_CONFIG_ITEMS = [
     "Dispenser Instance ID", "Parámetros de media", "Configuración de Presenter inválida",
 ];
-const UNIT_TO_SENSOR_GROUP = {
+const UNIT_TO_SENSOR_GROUP: Record<string, string> = {
     "07": "SNT", "08": "Carriage", "0A": "Presenter Chassis",
     "0B": "Shutter", "0C": "Media Aligner", "0D": "Vacuum System",
     "01": "Pick", "02": "Pick", "03": "Pick", "04": "Pick", "05": "Pick", "06": "Pick",
 };
-const UNIT_TO_MECH_GROUP = {
+const UNIT_TO_MECH_GROUP: Record<string, string> = {
     "07": "SNT", "08": "Carriage", "0A": "Presenter (Clamp)",
     "0B": "Shutter", "0C": "Media Aligner", "0D": "Vacuum System",
     "01": "Pick", "02": "Pick", "03": "Pick", "04": "Pick", "05": "Pick", "06": "Pick",
 };
-const UNIT_TO_JAM_GROUP = { "07": "SNT", "08": "Carriage", "09": "Bin" };
+const UNIT_TO_JAM_GROUP: Record<string, string> = { "07": "SNT", "08": "Carriage", "09": "Bin" };
 
-function decodeS2Bytes(ms, b1h, b2h, b3h, b4h) {
-    const hi = h => h ? parseInt(h, 16) : null;
+interface DecodeRow { label: string; hex: string; value: string; color: string; }
+
+function decodeS2Bytes(ms: number, b1h: string, b2h: string, b3h: string, b4h: string): DecodeRow[] {
+    const hi = (h: string) => h ? parseInt(h, 16) : null;
     const b1 = hi(b1h), b2 = hi(b2h), b3 = hi(b3h), b4 = hi(b4h);
-    const hex = h => h ? h.toUpperCase().padStart(2, "0") : "";
-    const rows = [];
-    const add = (label, rawHex, value, color = theme.am) =>
+    const hex = (h: string) => h ? h.toUpperCase().padStart(2, "0") : "";
+    const rows: DecodeRow[] = [];
+    const add = (label: string, rawHex: string, value: string, color = theme.am) =>
         rows.push({ label, hex: rawHex, value, color });
 
     // Byte 1 — NVRAM read/write
@@ -102,7 +83,7 @@ function decodeS2Bytes(ms, b1h, b2h, b3h, b4h) {
         const grp = S2_MECH_FAULTS.find(m => m.unit === grpName);
         const fault = grp?.faults.find(f => parseInt(f.code, 16) === b3);
         add("Byte 3 — Descripción de falla mecánica", hex(b3h),
-            fault ? `${fault.desc} (Dir: ${grp.dir})` : `Código ${hex(b3h)} — ver tabla de falla mecánica`,
+            fault ? `${fault.desc} (Dir: ${grp?.dir})` : `Código ${hex(b3h)} — ver tabla de falla mecánica`,
             theme.pr);
     }
 
@@ -159,10 +140,10 @@ function decodeS2Bytes(ms, b1h, b2h, b3h, b4h) {
     return rows;
 }
 
-function decodeBRMBytes(ms, b0h, b1h, b2h, b3h) {
-    const hex = h => h ? h.toUpperCase().padStart(2, "0") : "";
-    const rows = [];
-    const add = (label, rawHex, value, color = theme.am) =>
+function decodeBRMBytes(_ms: number, b0h: string, b1h: string, b2h: string, b3h: string): DecodeRow[] {
+    const hex = (h: string) => h ? h.toUpperCase().padStart(2, "0") : "";
+    const rows: DecodeRow[] = [];
+    const add = (label: string, rawHex: string, value: string, color = theme.am) =>
         rows.push({ label, hex: rawHex, value, color });
 
     const b0 = hex(b0h);
@@ -170,28 +151,30 @@ function decodeBRMBytes(ms, b0h, b1h, b2h, b3h) {
     const b2 = hex(b2h);
     const b3 = hex(b3h);
 
+    const COMMANDS = BRM_COMMANDS as Record<string, string>;
+    const MDATA    = BRM_MDATA_DETAILS as Record<string, string>;
+    const RESULTS  = BRM_RESULTS as Record<string, string>;
+
     if (b0) {
-        const cmd = BRM_COMMANDS[b0];
-        add("Byte 0 — Código de Comando", b0, cmd || "Desconocido", theme.bl);
+        add("Byte 0 — Código de Comando", b0, COMMANDS[b0] ?? "Desconocido", theme.bl);
     }
 
     if (b1 && b2) {
         const dkey = `${b1} ${b2}`;
-        const desc = BRM_MDATA_DETAILS[dkey];
-        add("Bytes 1 y 2 — Descripción de Error", `${b1} ${b2}`, desc || "Desconocido", theme.pr);
+        add("Bytes 1 y 2 — Descripción de Error", `${b1} ${b2}`, MDATA[dkey] ?? "Desconocido", theme.pr);
     } else if (b1 || b2) {
         add("Bytes 1 y 2", `${b1} ${b2}`.trim(), "Requiere ambos bytes para descifrar la descripción", theme.pr);
     }
 
     if (b3) {
-        const res = BRM_RESULTS[b3];
-        add("Byte 3 — Resultado", b3, res || "Desconocido", theme.gn);
+        add("Byte 3 — Resultado", b3, RESULTS[b3] ?? "Desconocido", theme.gn);
     }
 
     return rows;
 }
 
-function ByteInput({ label, sub, value, onChange, color, wide }) {
+interface ByteInputProps { label: string; sub?: string; value: string; onChange: (v: string) => void; color: string; wide?: boolean; }
+function ByteInput({ label, sub, value, onChange, color, wide }: ByteInputProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <input
@@ -211,7 +194,8 @@ function ByteInput({ label, sub, value, onChange, color, wide }) {
     );
 }
 
-function MStatusInput({ value, onChange }) {
+interface MStatusInputProps { value: string; onChange: (v: string) => void; }
+function MStatusInput({ value, onChange }: MStatusInputProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <input
@@ -230,8 +214,9 @@ function MStatusInput({ value, onChange }) {
     );
 }
 
-function ErrorDecoder({ activeFamily }) {
-// Update ErrorDecoder state to support b0 dynamically
+interface DecoderResult { ms: number; err: typeof S2_ERRORS[0] | typeof BRM_ERRORS[0] | undefined; device: string; decoded: DecodeRow[]; tcode: string; }
+
+function ErrorDecoder({ activeFamily }: { activeFamily: string }) {
     const [ms, setMs] = useState("");
     const [b0, setB0] = useState(activeFamily === "s2" ? "00" : "");
     const [b1, setB1] = useState("");
@@ -239,7 +224,7 @@ function ErrorDecoder({ activeFamily }) {
     const [b3, setB3] = useState("");
     const [b4, setB4] = useState("");
     const [tcode, setTcode] = useState("");
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState<DecoderResult | null>(null);
 
     function decode() {
         if (!ms) return;
@@ -360,16 +345,18 @@ function ErrorDecoder({ activeFamily }) {
     );
 }
 
-export function ErrorView({
-    activeFamily,
-    query, onQueryChange, inputRef,
-    catFilter, onCatFilter,
-    errMode, onErrMode,
-    treeOpen, onTreeOpen,
-    treeComp, onTreeComp,
-    expanded, onExpanded,
-    favorites, onToggleFav,
-}) {
+interface ErrorViewProps { favorites: string[]; onToggleFav: (id: string) => void; }
+export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
+    const { familyId } = useParams();
+    const activeFamily = familyId ?? "brm";
+    const [query, setQuery] = useState("");
+    const [catFilter, setCatFilter] = useState("all");
+    const [errMode, setErrMode] = useState("tree");
+    const [treeComp, setTreeComp] = useState<string | null>(null);
+    const [expanded, setExpanded] = useState<string | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const toggleExpanded = useCallback((id: string) => setExpanded(prev => prev === id ? null : id), []);
+
     const shadow = `0 1px 3px rgba(0,0,0,.25)`;
     const queryLower = query.toLowerCase().trim();
     
@@ -409,15 +396,15 @@ export function ErrorView({
         <div>
             {/* Mode toggle */}
             <div style={{ display: "flex", gap: 6, padding: "12px 14px 6px" }}>
-                {[
+                {([
                     ["tree",    ICONS.grid,   "Componente"],
                     ["search",  ICONS.search, "Buscar"],
                     ["decoder", "🔬",         "Decodificar"],
-                ].map(([mode, icon, label]) => (
+                ] as [string, ReactNode, string][]).map(([mode, icon, label]) => (
                     <button key={mode} className="nf" onClick={() => {
-                        onErrMode(mode);
-                        if (mode !== "search") onQueryChange("");
-                        if (mode !== "tree") { onTreeOpen(null); onTreeComp(null); }
+                        setErrMode(mode);
+                        if (mode !== "search") setQuery("");
+                        if (mode !== "tree") setTreeComp(null);
                     }} style={{
                         flex: 1, padding: "10px 4px", borderRadius: 10,
                         border: `1.5px solid ${errMode === mode ? theme.am : theme.bd}`,
@@ -437,15 +424,15 @@ export function ErrorView({
 
             {/* ── SEARCH MODE ── */}
             {isSearch && <>
-                <SearchBar value={query} onChange={onQueryChange} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />
+                <SearchBar value={query} onChange={setQuery} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />
 
                 {/* Category filter chips */}
                 <div className="ns" style={{ display: "flex", gap: 5, padding: "0 14px 10px", overflowX: "auto" }}>
-                    <Chip active={catFilter === "all"} onClick={() => onCatFilter("all")}>Todas</Chip>
+                    <Chip active={catFilter === "all"} onClick={() => setCatFilter("all")}>Todas</Chip>
                     {allCategories.map(ct => (
-                        <Chip key={ct} active={catFilter === ct} onClick={() => onCatFilter(ct)}>{getCategoryLabel(ct)}</Chip>
+                        <Chip key={ct} active={catFilter === ct} onClick={() => setCatFilter(ct)}>{getCategoryLabel(ct)}</Chip>
                     ))}
-                    {activeFamily === "brm" && <Chip active={catFilter === "pcb"} onClick={() => onCatFilter("pcb")}>PCB (BRM)</Chip>}
+                    {activeFamily === "brm" && <Chip active={catFilter === "pcb"} onClick={() => setCatFilter("pcb")}>PCB (BRM)</Chip>}
                 </div>
 
                 {/* Specific PCB filter view */}
@@ -475,7 +462,7 @@ export function ErrorView({
                                 <Sec n={filteredErrors.length}>CÓDIGOS DE ERROR {activeFamily.toUpperCase()}</Sec>
                                 {filteredErrors.map((it, i) => (
                                     <StatusCard key={`${activeFamily}-${it.code}`} item={it} device={activeFamily} index={i}
-                                        expanded={expanded} onToggle={onExpanded}
+                                        expanded={expanded} onToggle={toggleExpanded}
                                         favorites={favorites} onToggleFav={onToggleFav} />
                                 ))}
                             </>
@@ -495,7 +482,7 @@ export function ErrorView({
                                 Selecciona el componente estructural con el problema:
                             </div>
                             {TREE_DATA.map((comp, i) => (
-                                <div key={comp.id} className="nc" onClick={() => { onTreeComp(comp.id); onExpanded(null); }}
+                                <div key={comp.id} className="nc" onClick={() => { setTreeComp(comp.id); setExpanded(null); }}
                                     style={{ margin: "6px 0", padding: "14px 16px", background: theme.card, borderRadius: 12, border: `1px solid ${theme.bd}`, cursor: "pointer", boxShadow: shadow, animation: `nF .3s ease ${i * .08}s both` }}>
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -513,14 +500,13 @@ export function ErrorView({
                     ) : (
                         <>
                             <div style={{ paddingBottom: 10 }}>
-                                <BackButton onClick={() => { onTreeComp(null); onExpanded(null); }} label="Volver a componentes" />
+                                <BackButton onClick={() => { setTreeComp(null); setExpanded(null); }} label="Volver a componentes" />
                             </div>
                             <Sec n={selItems.length}>
                                 {TREE_DATA.find(c => c.id === treeComp)?.label}
                             </Sec>
                             {selItems.map((it, i) => (
-                                <StatusCard key={`${activeFamily}-${it.code}`} item={it} device={activeFamily} index={i}
-                                    expanded={expanded} onToggle={onExpanded}
+                                <ErrorSummaryCard key={`${activeFamily}-${it.code}`} item={it} device={activeFamily} index={i}
                                     favorites={favorites} onToggleFav={onToggleFav} />
                             ))}
                             {selItems.length === 0 && <None icon="📋" title="Sin códigos" subtitle="No hay M_STATUS asociados a este componente" />}

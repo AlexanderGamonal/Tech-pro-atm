@@ -1,4 +1,13 @@
-export function NavButton({ active, onClick, icon, label }) {
+import { ReactNode } from "react";
+
+interface NavButtonProps {
+    active: boolean;
+    onClick: () => void;
+    icon: ReactNode;
+    label: string;
+}
+
+export function NavButton({ active, onClick, icon, label }: NavButtonProps) {
     return (
         <button onClick={onClick} className="nf" style={{
             flex: 1, padding: "12px 0", border: "none", background: "none",

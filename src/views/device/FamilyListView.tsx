@@ -1,12 +1,15 @@
+import { useParams, useNavigate } from "react-router-dom";
 import { brandsCatalog } from "../../data/catalog/brands";
 import { ICONS } from "../../components/ui";
 import { theme, fonts } from "../../theme";
 
-export function FamilyListView({ activeBrand, onSelectFamily, onBack }) {
-    const brandData = brandsCatalog.find(b => b.id === activeBrand);
+export function FamilyListView() {
+    const { brandId } = useParams();
+    const navigate = useNavigate();
+    const brandData = brandsCatalog.find(b => b.id === brandId);
     if (!brandData) return null;
 
-    const shadow = `0 1px 3px rgba(0,0,0,.25)`;
+
 
     return (
         <div style={{ padding: "0", animation: "fi 0.4s ease" }}>
@@ -20,7 +23,7 @@ export function FamilyListView({ activeBrand, onSelectFamily, onBack }) {
 
                 <div style={{ display: "grid", gap: "14px" }}>
                     {brandData.families.map((fam, i) => (
-                        <div key={fam.id} onClick={() => onSelectFamily(fam.id)} className="card-cyber nc"
+                        <div key={fam.id} onClick={() => navigate(`/${brandId}/${fam.id}`)} className="card-cyber nc"
                             style={{ cursor: "pointer", borderLeft: `4px solid ${fam.id === 's2' ? theme.rd : theme.gn}`, animation: `nF .3s ease ${i * .08}s both` }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                                 <div style={{

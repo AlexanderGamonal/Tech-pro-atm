@@ -1,7 +1,15 @@
 import { LED_COLORS } from "../data/devices/ncr/brm/leds";
 
-export function LedDot({ cls, size = 11 }) {
-    const c = LED_COLORS[cls] || LED_COLORS.loff;
+type LedKey = keyof typeof LED_COLORS;
+
+interface LedDotProps {
+    cls: string;
+    size?: number;
+}
+
+export function LedDot({ cls, size = 11 }: LedDotProps) {
+    const key = (cls in LED_COLORS ? cls : "loff") as LedKey;
+    const c = LED_COLORS[key];
     return (
         <span style={{
             display: "inline-block",

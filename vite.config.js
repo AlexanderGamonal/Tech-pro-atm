@@ -12,6 +12,9 @@ export default defineConfig({
         'brm-lower.png',
         'brm-upper.png',
         'brm-overview.png',
+        'icons/icon-192x192.png',
+        'icons/icon-512x512.png',
+        'icons/apple-touch-icon.png',
       ],
       manifest: {
         name: 'TECH PRO',
@@ -25,10 +28,10 @@ export default defineConfig({
         start_url: '/',
         lang: 'es',
         icons: [
-          { src: 'logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: 'logo.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: 'logo.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: 'logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

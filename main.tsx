@@ -1,12 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './src/App.jsx'
+import { BrowserRouter } from 'react-router-dom'
+import App from './src/App'
 import { registerSW } from 'virtual:pwa-register'
 
-// Registra el Service Worker — auto-update silencioso
 registerSW({
   onNeedRefresh() {
-    // Nueva versión disponible — actualiza automáticamente
     console.log('[PWA] Nueva versión disponible, actualizando...')
   },
   onOfflineReady() {
@@ -14,8 +13,10 @@ registerSW({
   },
 })
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
 )

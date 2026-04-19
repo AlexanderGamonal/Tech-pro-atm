@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, SVGProps, ReactNode, CSSProperties } from "react";
+import { useParams } from "react-router-dom";
 import { LedDot } from "../components/LedDot";
 import { Sec, ICONS } from "../components/ui";
 import { theme, fonts } from "../theme";
 
 // ── Data Imports ─────────────────────────────────────────────────────────────
 // BRM
-import { UPPER_LEDS, LOWER_LEDS, LED_COLORS } from "../data/devices/ncr/brm/leds";
+import { UPPER_LEDS, LOWER_LEDS } from "../data/devices/ncr/brm/leds";
 import { DIAG_COMMANDS } from "../data/devices/ncr/brm/commands";
 import { BRM_COMPS, MOD_COLORS } from "../data/devices/ncr/brm/diagram";
 
@@ -27,7 +28,7 @@ function cardStyle() {
     return { background: V.surf, border: `1px solid ${V.bd}`, borderRadius: "0 8px 8px 8px", padding: "14px 12px", marginTop: 0 };
 }
 
-function tabStyle(id, active) {
+function tabStyle(_id: string, active: boolean): CSSProperties {
     return {
         flex: 1, padding: "11px 4px",
         background: active ? V.surf : V.bg,
@@ -42,7 +43,7 @@ function tabStyle(id, active) {
     };
 }
 
-function SectionTitle({ children }) {
+function SectionTitle({ children }: { children: ReactNode }) {
     return (
         <div style={{
             fontFamily: "'Orbitron', sans-serif", fontSize: 11, fontWeight: 700,
@@ -52,7 +53,7 @@ function SectionTitle({ children }) {
     );
 }
 
-function BackBtn({ onClick, label }) {
+function BackBtn({ onClick, label }: { onClick: () => void; label: string }) {
     return (
         <button onClick={onClick} style={{
             display: "flex", alignItems: "center", gap: 6, background: "none",
@@ -64,7 +65,8 @@ function BackBtn({ onClick, label }) {
     );
 }
 
-function LedDetailCard({ led }) {
+type LedEntry = { n: number; name: string; states: { cls: string; label: string; desc: string }[] };
+function LedDetailCard({ led }: { led: LedEntry }) {
     return (
         <div style={{ background: V.surf, border: `1px solid ${V.bd}`, borderRadius: 8, overflow: "hidden", marginBottom: 7 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: V.acBg, borderBottom: `1px solid ${V.bd}` }}>
@@ -88,12 +90,12 @@ function LedDetailCard({ led }) {
 // ── Interactive LED simulator ─────────────────────────────────────────────────
 const LED_DESCS = {
     upper: {
-        red:   ["Sin errores", "Pestillo abierto", "Atasco / Falla"],
+        red:   ["Sin errores", "Latch abierto", "Atasco / Falla"],
         amber: ["Sin avisos", "Reposición necesaria", "Reposición (parpadeando)"],
         green: ["Inoperativo", "Listo para usar", ""],
     },
     inter: {
-        red:   ["Sin errores", "Pestillo abierto", "Atasco / Falla"],
+        red:   ["Sin errores", "Latch abierto", "Atasco / Falla"],
         green: ["Inoperativo", "Listo", ""],
     },
     lower: {
@@ -103,7 +105,7 @@ const LED_DESCS = {
     },
 };
 
-const PRESETS = [
+const PRESETS: [string, LedSimState][] = [
     ["✅ Todo OK",       { upper:{red:0,amber:0,green:1}, inter:{red:0,green:1}, lower:{red:0,amber:0,green:1} }],
     ["🔴 Jam Upper",    { upper:{red:2,amber:0,green:0}, inter:{red:0,green:0}, lower:{red:0,amber:0,green:1} }],
     ["🔴 Jam Inter",    { upper:{red:0,amber:0,green:1}, inter:{red:2,green:0}, lower:{red:0,amber:0,green:1} }],
@@ -113,15 +115,18 @@ const PRESETS = [
     ["⚫ Reset",         { upper:{red:0,amber:0,green:0}, inter:{red:0,green:0}, lower:{red:0,amber:0,green:0} }],
 ];
 
+type LedModState = { red: number; amber?: number; green: number };
+type LedSimState = { upper: LedModState; inter: LedModState; lower: LedModState };
+
 function InteractiveLEDs() {
-    const initState = {
+    const initState: LedSimState = {
         upper: { red: 0, amber: 0, green: 0 },
         inter: { red: 0, green: 0 },
         lower: { red: 0, amber: 0, green: 0 },
     };
-    const [leds, setLeds] = useState(initState);
+    const [leds, setLeds] = useState<LedSimState>(initState);
 
-    function toCls(color, state) {
+    function toCls(color: string, state: number): string {
         if (state === 0) return "loff";
         if (color === "red")   return state === 1 ? "rs" : "rf";
         if (color === "amber") return state === 1 ? "as" : "af";
@@ -129,9 +134,9 @@ function InteractiveLEDs() {
         return "loff";
     }
 
-    function cycle(mod, color) {
+    function cycle(mod: keyof LedSimState, color: string) {
         setLeds(prev => {
-            const cur = prev[mod][color];
+            const cur = (prev[mod] as Record<string, number>)[color];
             const next = (cur + 1) % 3;
             if (next === 0) {
                 return { ...prev, [mod]: { ...prev[mod], [color]: 0 } };
@@ -148,10 +153,10 @@ function InteractiveLEDs() {
         { id: "lower", label: "Lower Module",  colors: ["red", "amber", "green"] },
     ];
 
-    function getModuleStatus(id, st) {
+    function getModuleStatus(_id: string, st: LedModState | undefined) {
         if (!st) return { text: "—", color: V.dm };
         if (st.red === 2)        return { text: "Atasco / Falla grave", color: "var(--c-red)" };
-        if (st.red === 1)        return { text: "Pestillo abierto", color: "var(--c-red)" };
+        if (st.red === 1)        return { text: "Latch abierto", color: "var(--c-red)" };
         if ((st.amber || 0) >= 1)return { text: "Requiere reposición", color: V.amber };
         if (st.green === 1)      return { text: "Módulo listo", color: "var(--c-green)" };
         return { text: "Inoperativo / Sin energía", color: V.dm };
@@ -163,7 +168,7 @@ function InteractiveLEDs() {
                 💡 Status Indicator LEDs 
             </div>
             {MODULES.map(({ id, label, colors }) => {
-                const st = leds[id];
+                const st = leds[id as keyof LedSimState];
                 const status = getModuleStatus(id, st);
                 return (
                     <div key={id} style={{ padding: "11px 12px", borderBottom: `1px solid ${V.bd}`, display: "flex", alignItems: "center", gap: 12 }}>
@@ -171,8 +176,8 @@ function InteractiveLEDs() {
                         <div style={{ display: "flex", gap: 9, background: V.bg, border: `1px solid ${V.bd}`, borderRadius: 6, padding: "7px 10px", flexShrink: 0 }}>
                             {colors.map(color => (
                                 <div key={color} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer" }}
-                                    onClick={() => cycle(id, color)}>
-                                    <LedDot cls={toCls(color, st[color])} size={18} />
+                                    onClick={() => cycle(id as keyof LedSimState, color)}>
+                                    <LedDot cls={toCls(color, (st as Record<string, number>)[color])} size={18} />
                                     <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 11, color: V.dm, letterSpacing: ".5px", textTransform: "uppercase" }}>{color[0]}</span>
                                 </div>
                             ))}
@@ -181,9 +186,9 @@ function InteractiveLEDs() {
                             <div style={{ fontSize: 12, fontWeight: 700, color: status.color, marginBottom: 2 }}>{status.text}</div>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px" }}>
                                 {colors.map(color => {
-                                    const s = st[color];
+                                    const s = (st as Record<string, number>)[color];
                                     if (s === 0) return null;
-                                    return <span key={color} style={{ fontSize: 12, color: V.dm }}>{LED_DESCS[id][color][s]}</span>;
+                                    return <span key={color} style={{ fontSize: 12, color: V.dm }}>{(LED_DESCS as Record<string, Record<string, string[]>>)[id]?.[color]?.[s]}</span>;
                                 })}
                             </div>
                         </div>
@@ -207,14 +212,14 @@ function InteractiveLEDs() {
 }
 
 // ── BRM Interactive Diagram ───────────────────────────────────────────────────
-const COMP_TEXT  = { fill: "#c8dcea", textAnchor: "middle", fontSize: 12, fontFamily: "IBM Plex Mono,monospace", fontWeight: "600" };
+const COMP_TEXT: SVGProps<SVGTextElement> = { fill: "#c8dcea", textAnchor: "middle", fontSize: 12, fontFamily: "IBM Plex Mono,monospace", fontWeight: "600" };
 
 function BrmDiagram() {
     const [sel, setSel] = useState("pocket");
     const info     = BRM_COMPS.find(c => c.id === sel);
-    const modColor = info ? MOD_COLORS[info.module] : "#58a6ff";
+    const modColor = info ? (MOD_COLORS as Record<string, string>)[info.module] ?? "#58a6ff" : "#58a6ff";
 
-    function compStyle(id) {
+    function compStyle(id: string) {
         const comp = BRM_COMPS.find(c => c.id === id);
         const isSelected = sel === id;
         return {
@@ -266,7 +271,7 @@ function BrmDiagram() {
                     <g onClick={() => setSel("lh-transp")} style={{ cursor: "pointer" }}><rect x="130" y="268" width="412" height="30" rx="4" style={sel==="lh-transp"?{...compStyle("lh-transp"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("lh-transp")} /><text x="336" y="284" {...COMP_TEXT}>Lower Horizontal Transport</text></g>
                     <g onClick={() => setSel("vert-transp")} style={{ cursor: "pointer" }}><rect x="125" y="302" width="22" height="160" rx="4" style={sel==="vert-transp"?{...compStyle("vert-transp"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("vert-transp")} /><text x="115" y="368" transform="rotate(-90,133,365)" fontSize="10" fontFamily="IBM Plex Mono,monospace" fill="#c8dcea" fontWeight="600" textAnchor="middle">Vertical Transport</text></g>
                     <g onClick={() => setSel("exc-lower")} style={{ cursor: "pointer" }}><rect x="16" y="268" width="100" height="195" rx="4" style={sel==="exc-lower"?{...compStyle("exc-lower"),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle("exc-lower")} /><text x="66" y="355" {...COMP_TEXT}>Lower</text><text x="66" y="369" {...COMP_TEXT}>Exception</text><text x="66" y="383" {...COMP_TEXT}>Cassette</text></g>
-                    {[["rec1",158],["rec2",255],["rec3",353],["rec4",452]].map(([id, x], i) => (
+                    {([ ["rec1",158],["rec2",255],["rec3",353],["rec4",452] ] as [string, number][]).map(([id, x], i) => (
                         <g key={id} onClick={() => setSel(id)} style={{ cursor: "pointer" }}>
                             <rect x={x} y="302" width="89" height="161" rx="4" style={sel===id?{...compStyle(id),filter:"url(#glow) brightness(1.8) saturate(1.6)"}:compStyle(id)} />
                             <text x={x+44} y="378" {...COMP_TEXT}>Recycler</text>
@@ -293,10 +298,11 @@ function BrmDiagram() {
 
 // ── Main view ─────────────────────────────────────────────────────────────────
 
-export function LEDRefView({ activeFamily }) {
-    const [section, setSection] = useState(null);
+export function LEDRefView() {
+    const { familyId: activeFamily } = useParams();
+    const [section, setSection] = useState<string | null>(null);
     const [ledTab,  setLedTab]  = useState("overview");
-    const [nomExpanded, setNomExpanded] = useState(null);
+    const [nomExpanded, setNomExpanded] = useState<string | null>(null);
 
     // ── BRM (Recuperador) ──
     if (activeFamily === "brm") {
@@ -395,14 +401,14 @@ export function LEDRefView({ activeFamily }) {
                                 <SectionTitle>REFERENCIA — Estado General</SectionTitle>
                                 {[
                                     { title: "UPPER MODULE", rows: [
-                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto" },
+                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Latch abierto" },
                                         { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
                                         { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
                                         { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },
                                         { cls: "gs", label: "VERDE SÓLIDO",desc: "Listo para usar" },
                                     ]},
                                     { title: "LOWER MODULE", rows: [
-                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Pestillo abierto o cassettes ausentes" },
+                                        { cls: "rs", label: "ROJO SÓLIDO", desc: "Latch abierto o cassettes ausentes" },
                                         { cls: "rf", label: "ROJO FLASH",  desc: "Atasco / Falla" },
                                         { cls: "as", label: "ÁMBAR",       desc: "Para reabastecimiento" },
                                         { cls: "loff", label: "VERDE OFF", desc: "Inoperativo" },

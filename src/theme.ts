@@ -1,6 +1,6 @@
 export const CSS_ID = "ncr-unified-theme";
 
-export function applyTheme(isDark) {
+export function applyTheme(isDark: boolean) {
     document.documentElement.dataset.theme = isDark ? "dark" : "light";
 }
 
@@ -11,16 +11,17 @@ export function injectCSS() {
     el.textContent = `
     /* ── DARK THEME ── */
     :root, [data-theme="dark"] {
-      --c-bg:        #0a0c10;
-      --c-surf:      #111418;
-      --c-card:      #181c22;
-      --c-border:    #2a3040;
-      --c-text:      #c8d6e8;
-      --c-bright:    #f0f6ff;
-      --c-dim:       #5c7080;
+      --c-bg:        #04070e;
+      --c-surf:      #090e18;
+      --c-card:      #0d1220;
+      --c-border:    #162035;
+      --c-text:      #b8cfe0;
+      --c-bright:    #e8f4ff;
+      --c-dim:       #4a6070;
       --c-accent:    #00d4ff;
-      --c-accent-bg: rgba(0,212,255,.07);
-      --c-accent-bd: rgba(0,212,255,.38);
+      --c-accent-bg: rgba(0,212,255,.06);
+      --c-accent-bd: rgba(0,212,255,.35);
+      --c-accent-glow: rgba(0,212,255,.22);
       --c-red:       #f43f5e;
       --c-red-bg:    rgba(244,63,94,.07);
       --c-red-bd:    rgba(244,63,94,.40);
@@ -33,9 +34,10 @@ export function injectCSS() {
       --c-purple:    #a78bfa;
       --c-purple-bg: rgba(167,139,250,.07);
       --c-purple-bd: rgba(167,139,250,.38);
-      --c-nav-bg:    rgba(17,20,24,.97);
-      --c-header-bg: rgba(17,20,24,.95);
-      --c-grid:      rgba(0,212,255,.022);
+      --c-nav-bg:    rgba(9,14,24,.97);
+      --c-header-bg: rgba(9,14,24,.96);
+      --c-grid:      rgba(0,212,255,.028);
+      --c-grid2:     rgba(0,212,255,.010);
     }
 
     /* ── LIGHT THEME ── */
@@ -75,31 +77,74 @@ export function injectCSS() {
       transition: background-color .25s, color .25s;
     }
 
+    /* ── Circuit board dual-layer grid ── */
     .bg-grid {
       position: fixed; inset: 0; z-index: -1;
       background-image:
         linear-gradient(var(--c-grid) 1px, transparent 1px),
-        linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
-      background-size: 32px 32px;
+        linear-gradient(90deg, var(--c-grid) 1px, transparent 1px),
+        linear-gradient(var(--c-grid2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--c-grid2) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
     }
 
-    @keyframes flash    { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    @keyframes ledFlash { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
-    @keyframes fi  { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes nF  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Subtle scanlines overlay ── */
+    .bg-scan {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent, transparent 3px,
+        rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px
+      );
+    }
+
+    @keyframes flash      { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes ledFlash   { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
+    @keyframes fi         { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes nF         { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin       { to { transform: rotate(360deg); } }
+    @keyframes glowPulse  { 0%, 100% { box-shadow: 0 0 8px var(--c-accent-glow); } 50% { box-shadow: 0 0 22px var(--c-accent-glow), 0 0 40px rgba(0,212,255,.08); } }
+    @keyframes textGlow   { 0%, 100% { text-shadow: 0 0 8px rgba(0,212,255,.5); } 50% { text-shadow: 0 0 18px rgba(0,212,255,.9), 0 0 30px rgba(0,212,255,.3); } }
 
     .font-orbitron { font-family: 'Orbitron', sans-serif; }
     .font-mono     { font-family: 'Share Tech Mono', monospace; }
 
+    /* ── Cyber card with corner brackets ── */
     .card-cyber {
+      position: relative;
       background: var(--c-card);
       border: 1px solid var(--c-border);
       border-radius: 8px;
       padding: 16px;
       margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      transition: background .25s, border-color .25s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.35);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .card-cyber::before, .card-cyber::after {
+      content: ''; position: absolute; width: 10px; height: 10px;
+    }
+    .card-cyber::before {
+      top: -1px; left: -1px;
+      border-top: 2px solid var(--c-accent); border-left: 2px solid var(--c-accent);
+      border-radius: 2px 0 0 0;
+    }
+    .card-cyber::after {
+      bottom: -1px; right: -1px;
+      border-bottom: 2px solid var(--c-accent); border-right: 2px solid var(--c-accent);
+      border-radius: 0 0 2px 0;
+    }
+    .card-cyber:hover, .card-cyber:active {
+      border-color: var(--c-accent-bd);
+      box-shadow: 0 0 18px var(--c-accent-glow), 0 4px 16px rgba(0,0,0,.5);
+    }
+
+    /* ── Neon badge ── */
+    .badge-neon {
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    /* ── Neon header title ── */
+    .header-title-glow {
+      animation: textGlow 3s ease-in-out infinite;
     }
 
     .led { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
@@ -151,8 +196,8 @@ export const fonts = {
     mono:    "'Share Tech Mono', monospace",
 };
 
-export function getCategoryColor(cat) {
-    const map = {
+export function getCategoryColor(cat: string): string {
+    const map: Record<string, string> = {
         Sensor: theme.bl, Mechanism: theme.rd, Jam: theme.rd,
         Communication: theme.am, Security: theme.pr, Interlock: theme.am,
         Pick: theme.rd, Cassette: theme.gn, Board: theme.bl,
@@ -161,11 +206,11 @@ export function getCategoryColor(cat) {
         Command: theme.dm, Configuration: theme.am, Memory: theme.bl,
         Request: theme.am, Discard: theme.rd, SNR: theme.bl,
     };
-    return map[cat] || theme.dm;
+    return map[cat] ?? theme.dm;
 }
 
-export function getCategoryLabel(cat) {
-    const map = {
+export function getCategoryLabel(cat: string): string {
+    const map: Record<string, string> = {
         General: "General", Memory: "Memoria", Communication: "Comunicación",
         Security: "Seguridad", Interlock: "Interlock", Request: "Solicitud",
         Configuration: "Configuración", Sensor: "Sensor", Mechanism: "Mecanismo",
@@ -174,5 +219,5 @@ export function getCategoryLabel(cat) {
         Board: "Placa/Board", Command: "Comando", Firmware: "Firmware",
         Maintenance: "Mantenimiento", Reject: "Rechazo", Cassette: "Cassette",
     };
-    return map[cat] || cat;
+    return map[cat] ?? cat;
 }
