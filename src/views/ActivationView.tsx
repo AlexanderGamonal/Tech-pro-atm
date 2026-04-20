@@ -43,15 +43,19 @@ const css = `
 }
 .act-wrap {
     position:relative;z-index:1;
+    width:100%;height:100%;
     min-height:100svh;
     display:flex;flex-direction:column;
     align-items:center;justify-content:center;
     padding:24px 16px;
     box-sizing:border-box;
     overflow-y:auto;
+    overflow-x:hidden;
 }
 .act-card {
-    width:100%;max-width:380px;
+    width:100%;
+    max-width:380px;
+    margin:auto;
     background:${C.card};
     border:1px solid ${C.border};
     border-radius:20px;
@@ -148,7 +152,7 @@ export function ActivationView() {
     const btnClass = `act-btn${isSuccess ? " success" : isError ? " error" : ""}`;
 
     return (
-        <div style={{ background: C.bg, fontFamily: "'Rajdhani', sans-serif" }}>
+        <div style={{ width: "100%", minHeight: "100vh", background: C.bg, fontFamily: "'Rajdhani', sans-serif" }}>
             <div className="act-grid" />
             <div className="act-scan-bg" />
 
