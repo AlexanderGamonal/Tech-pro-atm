@@ -42,12 +42,11 @@ export function AptraView() {
         <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
 
             {/* Back button */}
-            <div style={{ padding: "4px 14px 0" }}>
+            <div style={{ padding: "0 14px" }}>
                 <button onClick={() => navigate(-1)} style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    background: "none", border: "none", color: V.dm,
-                    cursor: "pointer", padding: "10px 0 6px",
-                    fontSize: 14, fontFamily: "'Rajdhani', sans-serif",
+                    display: "flex", alignItems: "center", gap: 6, background: "none",
+                    border: "none", color: V.dm, cursor: "pointer", padding: "10px 0 14px",
+                    fontSize: 14, fontFamily: "'IBM Plex Sans', sans-serif",
                 }}>
                     <span style={{ fontSize: 18 }}>←</span> Volver
                 </button>
