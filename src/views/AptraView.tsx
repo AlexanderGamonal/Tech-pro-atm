@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { APTRA_COMMANDS, APTRA_NOTE_STAR, APTRA_NOTE_DSTAR } from "../data/devices/ncr/brm/aptra";
+import { BackButton } from "../components/ui";
 import { theme } from "../theme";
 
 const V = {
@@ -42,15 +43,7 @@ export function AptraView() {
         <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
 
             {/* Back button */}
-            <div style={{ padding: "0 14px" }}>
-                <button onClick={() => navigate(-1)} style={{
-                    display: "flex", alignItems: "center", gap: 6, background: "none",
-                    border: "none", color: V.dm, cursor: "pointer", padding: "10px 0 14px",
-                    fontSize: 14, fontFamily: "'IBM Plex Sans', sans-serif",
-                }}>
-                    <span style={{ fontSize: 18 }}>←</span> Volver
-                </button>
-            </div>
+            <BackButton onClick={() => navigate(-1)} label="Volver" />
 
             {/* Header */}
             <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
