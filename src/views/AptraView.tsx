@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { APTRA_COMMANDS, APTRA_NOTE_STAR, APTRA_NOTE_DSTAR } from "../data/devices/ncr/brm/aptra";
 import { theme } from "../theme";
 
@@ -30,30 +31,27 @@ function NoteBadge({ note }: { note: "*" | "**" }) {
     );
 }
 
-function VideoBadge() {
-    return (
-        <span style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
-            fontFamily: "'Share Tech Mono', monospace",
-            fontSize: 10, color: "#a78bfa",
-            background: "rgba(167,139,250,.1)",
-            border: "1px solid rgba(167,139,250,.25)",
-            borderRadius: 4, padding: "1px 6px",
-            flexShrink: 0,
-        }}>
-            ▶ VIDEO
-        </span>
-    );
-}
-
 export function AptraView() {
     const [expanded, setExpanded] = useState<string | null>(null);
     const [notesOpen, setNotesOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggle = (id: string) => setExpanded(prev => prev === id ? null : id);
 
     return (
         <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
+
+            {/* Back button */}
+            <div style={{ padding: "4px 14px 0" }}>
+                <button onClick={() => navigate(-1)} style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    background: "none", border: "none", color: V.dm,
+                    cursor: "pointer", padding: "10px 0 6px",
+                    fontSize: 14, fontFamily: "'Rajdhani', sans-serif",
+                }}>
+                    <span style={{ fontSize: 18 }}>←</span> Volver
+                </button>
+            </div>
 
             {/* Header */}
             <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
@@ -164,8 +162,8 @@ export function AptraView() {
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{
-                                        fontSize: 14, fontWeight: 700,
-                                        color: isOpen ? V.br : V.tx,
+                                        fontSize: 15, fontWeight: 700,
+                                        color: V.br,
                                         fontFamily: "'Rajdhani', sans-serif",
                                         lineHeight: 1.3,
                                     }}>
@@ -173,9 +171,9 @@ export function AptraView() {
                                     </div>
                                     {!isOpen && (
                                         <div style={{
-                                            fontSize: 12, color: V.dm,
-                                            fontFamily: "'Share Tech Mono', monospace",
-                                            marginTop: 2, letterSpacing: ".3px",
+                                            fontSize: 12, color: V.tx,
+                                            fontFamily: "'Rajdhani', sans-serif",
+                                            marginTop: 2,
                                             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                                         }}>
                                             {cmd.desc}
@@ -185,7 +183,6 @@ export function AptraView() {
 
                                 <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
                                     {cmd.note && <NoteBadge note={cmd.note} />}
-                                    {cmd.video && <VideoBadge />}
                                     <span style={{
                                         color: isOpen ? V.ac : V.dm,
                                         fontSize: 14, transition: "transform .2s, color .2s",
@@ -201,7 +198,7 @@ export function AptraView() {
                                     animation: "nF .2s ease",
                                 }}>
                                     <p style={{
-                                        fontSize: 13, color: V.tx, lineHeight: 1.7,
+                                        fontSize: 14, color: V.br, lineHeight: 1.7,
                                         margin: "0 0 8px",
                                         fontFamily: "'Rajdhani', sans-serif",
                                     }}>
@@ -215,7 +212,7 @@ export function AptraView() {
                                             {cmd.details.map((d, di) => (
                                                 <li key={di} style={{
                                                     display: "flex", gap: 8, alignItems: "flex-start",
-                                                    fontSize: 13, color: V.dm, lineHeight: 1.6,
+                                                    fontSize: 13, color: V.tx, lineHeight: 1.6,
                                                     fontFamily: "'Rajdhani', sans-serif",
                                                 }}>
                                                     <span style={{
@@ -228,12 +225,9 @@ export function AptraView() {
                                             ))}
                                         </ul>
                                     )}
-                                    {(cmd.note || cmd.video) && (
-                                        <div style={{
-                                            display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap",
-                                        }}>
-                                            {cmd.note && <NoteBadge note={cmd.note} />}
-                                            {cmd.video && <VideoBadge />}
+                                    {cmd.note && (
+                                        <div style={{ marginTop: 10 }}>
+                                            <NoteBadge note={cmd.note} />
                                         </div>
                                     )}
                                 </div>
