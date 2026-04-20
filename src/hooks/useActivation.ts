@@ -26,9 +26,15 @@ export function useActivation() {
     const [errorMsg, setErrorMsg]           = useState("");
 
     // Al arrancar: ¿este dispositivo ya fue activado?
+    // También escucha el evento cuando otra instancia del hook activa el dispositivo
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        setStatus(saved ? "unlocked" : "locked");
+        const check = () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            setStatus(saved ? "unlocked" : "locked");
+        };
+        check();
+        window.addEventListener("atm-activated", check);
+        return () => window.removeEventListener("atm-activated", check);
     }, []);
 
     async function activate(rawToken: string) {
@@ -64,12 +70,13 @@ export function useActivation() {
                 deviceFingerprint: fingerprint,
             });
 
-            // Guardar activación local
+            // Guardar activación local y notificar a todas las instancias del hook
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 token,
                 activatedAt: Date.now(),
                 fingerprint,
             }));
+            window.dispatchEvent(new Event("atm-activated"));
 
             setValidation("success");
             setTimeout(() => setStatus("unlocked"), 1400);
