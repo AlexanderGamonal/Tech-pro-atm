@@ -24,7 +24,8 @@ export const brandsCatalog = [
                 sections: [
                     { id: "errors", title: "Errores", icon: "⚠️", desc: "Decodificador BRM" },
                     { id: "parts", title: "Partes", icon: "🔧", desc: "Catálogo BRM" },
-                    { id: "reference", title: "BRM Ref", icon: "🛠", desc: "LEDs & Diagramas" }
+                    { id: "reference", title: "BRM Ref", icon: "🛠", desc: "LEDs & Diagramas" },
+                    { id: "aptra", title: "APTRA Diag", icon: "🖥", desc: "Device Diagnostics desde APTRA" }
                 ]
             }
         ]
