@@ -59,17 +59,7 @@ export default function App() {
                 boxShadow: "0 1px 0 rgba(0,212,255,.12), 0 4px 24px rgba(0,0,0,.5)",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    {!isHome && (
-                        <button onClick={() => navigate(-1)} className="nf" style={{
-                            background: "transparent", border: "none", color: "var(--c-text)",
-                            fontSize: "22px", cursor: "pointer", padding: "0 4px 0 0",
-                            display: "flex", alignItems: "center", justifyContent: "center"
-                        }}>
-                            ←
-                        </button>
-                    )}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => navigate("/")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => navigate("/")}>
                         <div className="badge-neon" style={{
                             width: "auto", minWidth: "36px", height: "30px", background: "var(--c-accent)",
                             padding: "0 8px",
@@ -82,7 +72,6 @@ export default function App() {
                             TECH PRO
                         </div>
                     </div>
-                </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ fontSize: "12px", color: "var(--c-dim)", fontFamily: "'Share Tech Mono'" }}>v3.0.0</div>
                     {installPrompt && !installed && (

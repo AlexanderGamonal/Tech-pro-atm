@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { brandsCatalog } from "../../data/catalog/brands";
-import { ICONS } from "../../components/ui";
+import { ICONS, BackButton } from "../../components/ui";
 import { theme, fonts } from "../../theme";
 
 export function FamilyListView() {
@@ -13,7 +13,8 @@ export function FamilyListView() {
 
     return (
         <div style={{ padding: "0", animation: "fi 0.4s ease" }}>
-            <div style={{ padding: "18px 20px 20px" }}>
+            <BackButton onClick={() => navigate(-1)} label="Volver" />
+            <div style={{ padding: "4px 20px 20px" }}>
                 <h2 className="font-orbitron" style={{ color: "var(--c-bright)", fontSize: "26px", marginBottom: "5px" }}>
                     EQUIPOS {brandData.name}
                 </h2>

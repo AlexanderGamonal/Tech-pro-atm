@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { SearchBar, Sec, None, PartCard } from "../components/ui";
+import { useParams, useNavigate } from "react-router-dom";
+import { SearchBar, Sec, None, PartCard, BackButton } from "../components/ui";
 
 import { S2_PARTS } from "../data/devices/ncr/s2/parts";
 import { BRM_PARTS } from "../data/devices/ncr/brm/parts";
@@ -11,6 +11,7 @@ export function PartsView({ favorites, onToggleFav }: PartsViewProps) {
     const [query, setQuery] = useState("");
     const [expanded, setExpanded] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const navigate = useNavigate();
     const toggleExpanded = useCallback((id: string) => setExpanded(prev => prev === id ? null : id), []);
 
     const queryLower = query.toLowerCase().trim();
@@ -26,6 +27,7 @@ export function PartsView({ favorites, onToggleFav }: PartsViewProps) {
 
     return (
         <div>
+            <BackButton onClick={() => navigate(-1)} label="Volver" />
             <SearchBar value={query} onChange={setQuery} placeholder="Buscar número de parte, descripción..." inputRef={inputRef} />
 
             {/* Part List */}

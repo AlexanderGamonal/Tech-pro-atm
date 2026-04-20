@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { theme, fonts, getCategoryLabel } from "../theme";
 import { SearchBar, Chip, Sec, None, Tag, StatusCard, ErrorSummaryCard, ICONS, BackButton } from "../components/ui";
 
@@ -357,6 +357,7 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const toggleExpanded = useCallback((id: string) => setExpanded(prev => prev === id ? null : id), []);
 
+    const navigate = useNavigate();
     const shadow = `0 1px 3px rgba(0,0,0,.25)`;
     const queryLower = query.toLowerCase().trim();
     
@@ -394,8 +395,9 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
 
     return (
         <div>
+            <BackButton onClick={() => navigate(-1)} label="Volver" />
             {/* Mode toggle */}
-            <div style={{ display: "flex", gap: 6, padding: "12px 14px 6px" }}>
+            <div style={{ display: "flex", gap: 6, padding: "6px 14px 6px" }}>
                 {([
                     ["tree",    ICONS.grid,   "Componente"],
                     ["search",  ICONS.search, "Buscar"],

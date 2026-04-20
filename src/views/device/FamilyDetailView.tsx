@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { brandsCatalog } from "../../data/catalog/brands";
-import { Tag } from "../../components/ui";
+import { Tag, BackButton } from "../../components/ui";
 import { fonts } from "../../theme";
 
 export function FamilyDetailView() {
@@ -13,7 +13,8 @@ export function FamilyDetailView() {
 
     return (
         <div style={{ padding: "0", animation: "fi 0.4s ease" }}>
-            <div style={{ padding: "16px 20px 5px", background: "var(--c-card)", borderBottom: "1px solid var(--c-border)" }}>
+            <BackButton onClick={() => navigate(-1)} label="Volver" />
+            <div style={{ padding: "4px 20px 5px", background: "var(--c-card)", borderBottom: "1px solid var(--c-border)" }}>
                 <div style={{ marginTop: "6px", paddingBottom: "20px" }}>
                     <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
                         <Tag color="var(--c-accent)">{brandData.name}</Tag>

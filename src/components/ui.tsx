@@ -107,9 +107,10 @@ interface BackButtonProps { onClick: () => void; label: string; }
 export function BackButton({ onClick, label }: BackButtonProps) {
     return (
         <button className="nf" onClick={onClick} style={{
+            display: "flex", alignItems: "center", gap: 6,
             background: "none", border: "none", color: theme.am, cursor: "pointer",
             fontFamily: fonts.display, fontSize: 14, fontWeight: 600,
-            padding: "4px 0 12px", display: "flex", alignItems: "center", gap: 6,
+            padding: "10px 14px 6px",
         }}>
             {ICONS.arrowLeft} {label}
         </button>

@@ -1,7 +1,7 @@
 import { useState, SVGProps, ReactNode, CSSProperties } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { LedDot } from "../components/LedDot";
-import { Sec, ICONS } from "../components/ui";
+import { Sec, ICONS, BackButton } from "../components/ui";
 import { theme, fonts } from "../theme";
 
 // ── Data Imports ─────────────────────────────────────────────────────────────
@@ -53,17 +53,7 @@ function SectionTitle({ children }: { children: ReactNode }) {
     );
 }
 
-function BackBtn({ onClick, label }: { onClick: () => void; label: string }) {
-    return (
-        <button onClick={onClick} style={{
-            display: "flex", alignItems: "center", gap: 6, background: "none",
-            border: "none", color: V.dm, cursor: "pointer", padding: "10px 0 14px",
-            fontSize: 14, fontFamily: "'IBM Plex Sans', sans-serif",
-        }}>
-            <span style={{ fontSize: 18 }}>←</span> {label}
-        </button>
-    );
-}
+
 
 type LedEntry = { n: number; name: string; states: { cls: string; label: string; desc: string }[] };
 function LedDetailCard({ led }: { led: LedEntry }) {
@@ -303,6 +293,7 @@ export function LEDRefView() {
     const [section, setSection] = useState<string | null>(null);
     const [ledTab,  setLedTab]  = useState("overview");
     const [nomExpanded, setNomExpanded] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     // ── BRM (Recuperador) ──
     if (activeFamily === "brm") {
@@ -323,7 +314,8 @@ export function LEDRefView() {
                 { id: "ras",     icon: "🛠", title: "RAS / Diagnóstico", sub: "Direct Command",   desc: "Comandos de diagnóstico BRM",        color: V.amber,   bg: "rgba(245,158,11,.07)" },
             ];
             return (
-                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
+                    <BackButton onClick={() => navigate(-1)} label="Volver" />
                     {headerBRM}
                     <div style={{ padding: "0 14px" }}>
                         <div style={{ fontSize: 13, color: V.dm, marginBottom: 14 }}>Selecciona una sección:</div>
@@ -350,10 +342,10 @@ export function LEDRefView() {
 
         if (section === "diagram") {
             return (
-                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
+                    <BackButton onClick={() => setSection(null)} label="Volver" />
                     {headerBRM}
                     <div style={{ padding: "0 14px" }}>
-                        <BackBtn onClick={() => setSection(null)} label="Volver" />
                         <BrmDiagram />
                     </div>
                 </div>
@@ -362,10 +354,10 @@ export function LEDRefView() {
 
         if (section === "ras") {
             return (
-                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
+                    <BackButton onClick={() => setSection(null)} label="Volver" />
                     {headerBRM}
                     <div style={{ padding: "0 14px" }}>
-                        <BackBtn onClick={() => setSection(null)} label="Volver" />
                         <SectionTitle>COMANDOS RAS / DIAGNÓSTICO</SectionTitle>
                         <div style={{ fontSize: 13, color: V.dm, marginBottom: 12, lineHeight: 1.6 }}>
                             Ejecutar desde <b style={{ color: V.tx }}>Supervisor Mode → Diagnostics → Direct Command</b>.
@@ -383,12 +375,10 @@ export function LEDRefView() {
 
         if (section === "leds") {
             return (
-                <div style={{ padding: "0 8px 32px", animation: "fi .3s ease" }}>
+                <div style={{ padding: "0 0 32px", animation: "fi .3s ease" }}>
+                    <BackButton onClick={() => setSection(null)} label="Volver" />
                     {headerBRM}
                     <div style={{ padding: "0 8px" }}>
-                        <div style={{ padding: "0 6px" }}>
-                            <BackBtn onClick={() => setSection(null)} label="Volver" />
-                        </div>
                         <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${V.bd}`, marginBottom: 0 }}>
                             {[["overview", "General"], ["upper", "Upper (1-9)"], ["lower", "Lower (10-16)"]].map(([id, label]) => (
                                 <button key={id} className="nf" onClick={() => setLedTab(id)} style={tabStyle(id, ledTab === id)}>{label}</button>
@@ -473,6 +463,7 @@ export function LEDRefView() {
         const shadow = `0 1px 3px rgba(0,0,0,.25)`;
         return (
             <div style={{ padding: "0px", animation: "fi .3s ease" }}>
+                <BackButton onClick={() => navigate(-1)} label="Volver" />
                 <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
                     <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: V.br, letterSpacing: 1, lineHeight: 1.15, margin: 0 }}>
                         S2 <span style={{ color: V.rd }}>Sensores</span>
