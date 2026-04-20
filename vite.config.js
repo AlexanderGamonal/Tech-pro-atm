@@ -62,8 +62,17 @@ export default defineConfig({
       },
       devOptions: {
         // Habilita el SW en dev para poder testearlo
-        enabled: false,
       },
     }),
   ],
+  build: {
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
 })
