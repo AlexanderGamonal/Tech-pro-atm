@@ -17,8 +17,8 @@ service cloud.firestore {
         // Debe marcarse como usado
         request.resource.data.used == true;
 
-      // ❌ No se pueden crear ni eliminar tokens desde la app
-      allow create, delete: if false;
+      // ✅ Solo administradores logueados pueden crear/eliminar
+      allow create, delete: if request.auth != null;
     }
   }
 }
