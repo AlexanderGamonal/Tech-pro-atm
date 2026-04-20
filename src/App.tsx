@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { injectCSS, applyTheme } from "./theme";
 import { useFavorites } from "./hooks/useFavorites";
+import { useActivation } from "./hooks/useActivation";
+import { ActivationView } from "./views/ActivationView";
 
 import { BrandsView } from "./views/brands/BrandsView";
 import { FamilyListView } from "./views/device/FamilyListView";
@@ -40,10 +42,22 @@ export default function App() {
     }, []);
 
     const { favorites, toggleFavorite } = useFavorites();
+    const { status: activationStatus }  = useActivation();
 
     const navigate = useNavigate();
-    const location = useLocation();
-    const isHome = location.pathname === "/";
+
+    // ── Guard: dispositivo no activado ───────────────────────────────────────
+    if (activationStatus === "checking") {
+        return (
+            <div style={{ minHeight:"100vh", background:"#04070e", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <div style={{ width:28, height:28, border:"3px solid rgba(0,212,255,.2)", borderTopColor:"#00d4ff", borderRadius:"50%", animation:"spin .7s linear infinite" }} />
+            </div>
+        );
+    }
+
+    if (activationStatus === "locked") {
+        return <ActivationView />;
+    }
 
     return (
         <div style={{ minHeight: "100vh" }}>

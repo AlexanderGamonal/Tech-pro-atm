@@ -3,3 +3,6 @@ dist/
 .vercel
 *.local
 .worktrees/
+
+# Firebase Admin — NUNCA subir al repo
+scripts/service-account.json

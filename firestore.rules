@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tokens/{tokenId} {
+
+      // ✅ Cualquiera puede leer un token para validarlo
+      allow read: if true;
+
+      // ✅ Solo se permite actualizar los campos de activación
+      //    (no se puede cambiar label, createdAt ni crear/eliminar tokens)
+      allow update: if
+        // El token estaba sin usar
+        resource.data.used == false &&
+        // Solo se pueden modificar estos tres campos
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['used', 'activatedAt', 'deviceFingerprint']) &&
+        // Debe marcarse como usado
+        request.resource.data.used == true;
+
+      // ❌ No se pueden crear ni eliminar tokens desde la app
+      allow create, delete: if false;
+    }
+  }
+}
