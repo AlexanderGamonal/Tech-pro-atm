@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup – Menú Principal</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c-bg:        #04070e;
+    --c-card:      #0d1220;
+    --c-border:    #162035;
+    --c-accent:    #00d4ff;
+    --c-accent-bg: rgba(0,212,255,.08);
+    --c-accent-bd: rgba(0,212,255,.25);
+    --c-bright:    #e8f4ff;
+    --c-text:      #b8cfe0;
+    --c-dim:       #4a6070;
+    --c-soon-bg:   rgba(255,180,0,.06);
+    --c-soon-bd:   rgba(255,180,0,.2);
+    --c-soon:      #ffb400;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    background-image:
+      linear-gradient(rgba(0,212,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.028) 1px, transparent 1px),
+      linear-gradient(rgba(0,212,255,.010) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.010) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+
+  /* Header */
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99;
+    background: rgba(4,7,14,.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--c-border);
+    padding: 0 16px;
+    height: 56px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-badge {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, rgba(0,212,255,.25), rgba(0,212,255,.08));
+    border: 1px solid var(--c-accent-bd);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 900;
+    color: var(--c-accent); letter-spacing: 1px;
+    box-shadow: 0 0 12px rgba(0,212,255,.2);
+  }
+  .header-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: 14px; letter-spacing: 3px;
+    color: var(--c-bright);
+    text-shadow: 0 0 12px rgba(0,212,255,.5);
+    flex: 1;
+  }
+  .header-version {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    color: var(--c-dim); letter-spacing: 1px;
+  }
+  .theme-btn {
+    width: 32px; height: 32px;
+    background: rgba(0,212,255,.08);
+    border: 1px solid var(--c-accent-bd);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: pointer;
+  }
+
+  /* Main content */
+  .content {
+    padding-top: 56px;
+  }
+  .inner {
+    padding: 20px 16px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 24px 0 28px;
+  }
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--c-accent);
+    letter-spacing: 4px; text-transform: uppercase;
+    margin-bottom: 8px; opacity: .7;
+  }
+  .hero-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    color: var(--c-bright); font-size: 28px;
+    margin: 0 0 6px;
+    text-shadow: 0 0 18px rgba(0,212,255,.4), 0 0 40px rgba(0,212,255,.12);
+    letter-spacing: 3px;
+  }
+  .hero-title span { color: var(--c-accent); }
+  .hero-divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--c-accent), transparent);
+    margin: 10px auto 0;
+  }
+
+  /* Cards grid */
+  .grid { display: grid; gap: 12px; }
+
+  /* Card cyber */
+  .card-cyber {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,.35);
+    position: relative;
+  }
+  .card-cyber::before, .card-cyber::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border-color: var(--c-accent);
+    border-style: solid;
+    opacity: .5;
+  }
+  .card-cyber::before { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+  .card-cyber::after  { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
+
+  .card-cyber:hover {
+    border-color: rgba(0,212,255,.5);
+    box-shadow: 0 0 18px rgba(0,212,255,.12);
+  }
+
+  /* Active brand card */
+  .card-active .avatar { background: linear-gradient(135deg, var(--c-accent-bg), rgba(0,212,255,.12)); border-color: var(--c-accent-bd); color: var(--c-accent); }
+
+  /* Soon brand card */
+  .card-soon {
+    border-color: rgba(255,180,0,.18);
+    background: rgba(13,18,32,0.7);
+  }
+  .card-soon::before, .card-soon::after { border-color: var(--c-soon); opacity: .4; }
+  .card-soon:hover { border-color: rgba(255,180,0,.4); box-shadow: 0 0 18px rgba(255,180,0,.08); }
+
+  .card-row {
+    display: flex; align-items: center; gap: 15px;
+  }
+
+  .avatar {
+    width: 50px; height: 50px; flex-shrink: 0;
+    border: 1px solid; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900;
+    box-shadow: 0 0 12px rgba(0,212,255,.15);
+  }
+  .avatar-soon {
+    background: linear-gradient(135deg, rgba(255,180,0,.07), rgba(255,180,0,.14));
+    border-color: rgba(255,180,0,.3);
+    color: var(--c-soon);
+    box-shadow: 0 0 12px rgba(255,180,0,.12);
+    font-size: 20px;
+  }
+
+  .card-body { flex: 1; }
+  .brand-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 17px; color: var(--c-bright); letter-spacing: 1px;
+  }
+  .brand-name-soon { color: rgba(232,244,255,.6); font-size: 15px; }
+  .brand-meta {
+    font-size: 12px; color: var(--c-dim);
+    font-family: 'Share Tech Mono', monospace;
+    margin-top: 3px; letter-spacing: .5px;
+  }
+
+  /* "Próximamente" badge */
+  .soon-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,180,0,.1);
+    border: 1px solid rgba(255,180,0,.25);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--c-soon);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-top: 5px;
+  }
+  .soon-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--c-soon);
+    animation: pulse 2s infinite;
+  }
+
+  /* Arrow */
+  .arrow { color: var(--c-accent); opacity: .6; font-size: 18px; }
+  .arrow-soon { color: var(--c-soon); opacity: .4; }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--c-dim);
+    padding: 4px 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--c-border), transparent);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .3; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo-badge">ATM</div>
+  <div class="header-title">TECH PRO</div>
+  <div class="header-version">v3.0.0</div>
+  <div class="theme-btn">☀️</div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="inner">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-sub">// ATM TECH PRO — v3.0.0</div>
+      <h2 class="hero-title">SELECCIONA <span>MARCA</span></h2>
+      <div class="hero-divider"></div>
+    </div>
+
+    <!-- Brands grid -->
+    <div class="grid">
+
+      <!-- ─── DISPONIBLES ─── -->
+      <div class="section-label">DISPONIBLES</div>
+
+      <!-- NCR (existing) -->
+      <div class="card-cyber card-active">
+        <div class="card-row">
+          <div class="avatar" style="background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(0,212,255,.12)); border-color: rgba(0,212,255,.25); color: #00d4ff;">N</div>
+          <div class="card-body">
+            <div class="brand-name">NCR</div>
+            <div class="brand-meta">2 familias · 6 herramientas</div>
+          </div>
+          <span class="arrow">→</span>
+        </div>
+      </div>
+
+      <!-- ─── PRÓXIMAMENTE ─── -->
+      <div class="section-label" style="margin-top:8px;">PRÓXIMAMENTE</div>
+
+      <!-- DIEBOLD NIXDORF -->
+      <div class="card-cyber card-soon">
+        <div class="card-row">
+          <div class="avatar avatar-soon">D</div>
+          <div class="card-body">
+            <div class="brand-name brand-name-soon">DIEBOLD NIXDORF</div>
+            <div class="brand-meta">0 familias · 0 herramientas</div>
+            <div class="soon-badge"><span class="soon-dot"></span>Próximamente</div>
+          </div>
+          <span class="arrow arrow-soon">→</span>
+        </div>
+      </div>
+
+      <!-- GRG -->
+      <div class="card-cyber card-soon">
+        <div class="card-row">
+          <div class="avatar avatar-soon">G</div>
+          <div class="card-body">
+            <div class="brand-name brand-name-soon">GRG</div>
+            <div class="brand-meta">0 familias · 0 herramientas</div>
+            <div class="soon-badge"><span class="soon-dot"></span>Próximamente</div>
+          </div>
+          <span class="arrow arrow-soon">→</span>
+        </div>
+      </div>
+
+      <!-- HYOSUNG -->
+      <div class="card-cyber card-soon">
+        <div class="card-row">
+          <div class="avatar avatar-soon">H</div>
+          <div class="card-body">
+            <div class="brand-name brand-name-soon">HYOSUNG</div>
+            <div class="brand-meta">0 familias · 0 herramientas</div>
+            <div class="soon-badge"><span class="soon-dot"></span>Próximamente</div>
+          </div>
+          <span class="arrow arrow-soon">→</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
