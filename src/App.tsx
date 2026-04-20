@@ -10,6 +10,7 @@ import { FamilyDetailView } from "./views/device/FamilyDetailView";
 const ErrorView = lazy(() => import("./views/ErrorView").then(m => ({ default: m.ErrorView })));
 const PartsView = lazy(() => import("./views/PartsView").then(m => ({ default: m.PartsView })));
 const LEDRefView = lazy(() => import("./views/LEDRefView").then(m => ({ default: m.LEDRefView })));
+const AptraView = lazy(() => import("./views/AptraView").then(m => ({ default: m.AptraView })));
 
 export default function App() {
     const [isDark, setIsDark] = useState(() => {
@@ -124,6 +125,7 @@ export default function App() {
                         } />
                         <Route path="/:brandId/:familyId/reference" element={<LEDRefView />} />
                         <Route path="/:brandId/:familyId/sensors" element={<LEDRefView />} />
+                        <Route path="/:brandId/:familyId/aptra" element={<AptraView />} />
                     </Routes>
                 </Suspense>
             </main>
