@@ -32,22 +32,6 @@ function NoteBadge({ note }: { note: "*" | "**" }) {
     );
 }
 
-function VideoBadge() {
-    return (
-        <span style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
-            fontFamily: "'Share Tech Mono', monospace",
-            fontSize: 10, color: "#a78bfa",
-            background: "rgba(167,139,250,.1)",
-            border: "1px solid rgba(167,139,250,.25)",
-            borderRadius: 4, padding: "1px 6px",
-            flexShrink: 0,
-        }}>
-            ▶ VIDEO
-        </span>
-    );
-}
-
 export function AptraView() {
     const [expanded, setExpanded] = useState<string | null>(null);
     const [notesOpen, setNotesOpen] = useState(false);
@@ -192,7 +176,6 @@ export function AptraView() {
 
                                 <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
                                     {cmd.note && <NoteBadge note={cmd.note} />}
-                                    {cmd.video && <VideoBadge />}
                                     <span style={{
                                         color: isOpen ? V.ac : V.dm,
                                         fontSize: 14, transition: "transform .2s, color .2s",
@@ -235,12 +218,9 @@ export function AptraView() {
                                             ))}
                                         </ul>
                                     )}
-                                    {(cmd.note || cmd.video) && (
-                                        <div style={{
-                                            display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap",
-                                        }}>
-                                            {cmd.note && <NoteBadge note={cmd.note} />}
-                                            {cmd.video && <VideoBadge />}
+                                    {cmd.note && (
+                                        <div style={{ marginTop: 10 }}>
+                                            <NoteBadge note={cmd.note} />
                                         </div>
                                     )}
                                 </div>
