@@ -32,6 +32,22 @@ function NoteBadge({ note }: { note: "*" | "**" }) {
     );
 }
 
+function VideoBadge() {
+    return (
+        <span style={{
+            display: "inline-flex", alignItems: "center", gap: 3,
+            fontFamily: "'Share Tech Mono', monospace",
+            fontSize: 10, color: "#a78bfa",
+            background: "rgba(167,139,250,.1)",
+            border: "1px solid rgba(167,139,250,.25)",
+            borderRadius: 4, padding: "1px 6px",
+            flexShrink: 0,
+        }}>
+            ▶ VIDEO
+        </span>
+    );
+}
+
 export function AptraView() {
     const [expanded, setExpanded] = useState<string | null>(null);
     const [notesOpen, setNotesOpen] = useState(false);
@@ -44,6 +60,7 @@ export function AptraView() {
 
             {/* Back button */}
             <BackButton onClick={() => navigate(-1)} label="Volver" />
+
 
             {/* Header */}
             <div style={{ textAlign: "center", padding: "14px 0 8px", borderBottom: `1px solid ${V.bd}`, marginBottom: 14 }}>
@@ -175,6 +192,7 @@ export function AptraView() {
 
                                 <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
                                     {cmd.note && <NoteBadge note={cmd.note} />}
+                                    {cmd.video && <VideoBadge />}
                                     <span style={{
                                         color: isOpen ? V.ac : V.dm,
                                         fontSize: 14, transition: "transform .2s, color .2s",
@@ -217,9 +235,12 @@ export function AptraView() {
                                             ))}
                                         </ul>
                                     )}
-                                    {cmd.note && (
-                                        <div style={{ marginTop: 10 }}>
-                                            <NoteBadge note={cmd.note} />
+                                    {(cmd.note || cmd.video) && (
+                                        <div style={{
+                                            display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap",
+                                        }}>
+                                            {cmd.note && <NoteBadge note={cmd.note} />}
+                                            {cmd.video && <VideoBadge />}
                                         </div>
                                     )}
                                 </div>

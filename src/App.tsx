@@ -14,6 +14,7 @@ const ErrorView = lazy(() => import("./views/ErrorView").then(m => ({ default: m
 const PartsView = lazy(() => import("./views/PartsView").then(m => ({ default: m.PartsView })));
 const LEDRefView = lazy(() => import("./views/LEDRefView").then(m => ({ default: m.LEDRefView })));
 const AptraView = lazy(() => import("./views/AptraView").then(m => ({ default: m.AptraView })));
+const SensorsView = lazy(() => import("./views/SensorsView").then(m => ({ default: m.SensorsView })));
 
 export default function App() {
     const [isDark, setIsDark] = useState(() => {
@@ -132,7 +133,7 @@ export default function App() {
                             <PartsView favorites={favorites} onToggleFav={toggleFavorite} />
                         } />
                         <Route path="/:brandId/:familyId/reference" element={<LEDRefView />} />
-                        <Route path="/:brandId/:familyId/sensors" element={<LEDRefView />} />
+                        <Route path="/:brandId/:familyId/sensors" element={<SensorsView />} />
                         <Route path="/:brandId/:familyId/aptra" element={<AptraView />} />
                         <Route path="/admin" element={<AdminView />} />
                     </Routes>
