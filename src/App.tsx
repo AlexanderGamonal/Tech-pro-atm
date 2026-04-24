@@ -133,7 +133,8 @@ export default function App() {
                             <PartsView favorites={favorites} onToggleFav={toggleFavorite} />
                         } />
                         <Route path="/:brandId/:familyId/reference" element={<LEDRefView />} />
-                        <Route path="/:brandId/:familyId/sensors" element={<SensorsView />} />
+                        <Route path="/ncr/brm/sensors" element={<SensorsView />} />
+                        <Route path="/:brandId/:familyId/sensors" element={<LEDRefView />} />
                         <Route path="/:brandId/:familyId/aptra" element={<AptraView />} />
                         <Route path="/admin" element={<AdminView />} />
                     </Routes>
