@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { theme, fonts, getCategoryLabel } from "../theme";
 import { SearchBar, Chip, Sec, None, Tag, StatusCard, ErrorSummaryCard, ICONS, BackButton } from "../components/ui";
 
@@ -225,6 +225,7 @@ function ErrorDecoder({ activeFamily }: { activeFamily: string }) {
     const [b4, setB4] = useState("");
     const [tcode, setTcode] = useState("");
     const [result, setResult] = useState<DecoderResult | null>(null);
+    const navigate = useNavigate();
 
     function decode() {
         if (!ms) return;
@@ -334,6 +335,23 @@ function ErrorDecoder({ activeFamily }: { activeFamily: string }) {
                                     <div style={{ fontSize: 12, fontFamily: fonts.display, color: theme.bl, marginBottom: 6, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>Estructura M-Data</div>
                                     <div style={{ fontSize: 14, fontFamily: fonts.display, color: theme.dm, lineHeight: 1.7 }}>{result.err.mdata}</div>
                                 </div>
+                            )}
+
+                            {result.device === "brm" && (
+                                <button
+                                    className="nf"
+                                    onClick={() => navigate("/ncr/brm/sensors")}
+                                    style={{
+                                        marginTop: 10, width: "100%", padding: "12px",
+                                        background: "transparent", border: `1px solid ${theme.gn}60`,
+                                        borderRadius: 10, cursor: "pointer",
+                                        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                                        color: theme.gn, fontFamily: fonts.display, fontSize: 14, fontWeight: 700,
+                                        letterSpacing: ".5px", transition: "background .2s",
+                                    }}
+                                >
+                                    🔌 Ver Sensores y Actuadores
+                                </button>
                             )}
                         </>
                     ) : (
