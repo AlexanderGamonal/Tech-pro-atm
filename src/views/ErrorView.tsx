@@ -405,7 +405,7 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
         m.ex.toLowerCase().includes(queryLower)
     ) : [];
 
-    const isSearch = errMode === "search" || queryLower !== "";
+    const isSearch = queryLower !== "";
 
     // Tree mode selection
     const selCodes = treeComp ? TREE_DATA.find(c => c.id === treeComp)?.codes || [] : [];
@@ -417,13 +417,12 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
             {/* Mode toggle */}
             <div style={{ display: "flex", gap: 6, padding: "6px 14px 6px" }}>
                 {([
-                    ["tree",    ICONS.grid,   "Componente"],
-                    ["search",  ICONS.search, "Buscar"],
                     ["decoder", "🔬",         "Decodificar"],
+                    ["tree",    ICONS.grid,   "Componente"],
                 ] as [string, ReactNode, string][]).map(([mode, icon, label]) => (
                     <button key={mode} className="nf" onClick={() => {
                         setErrMode(mode);
-                        if (mode !== "search") setQuery("");
+                        setQuery("");
                         if (mode !== "tree") setTreeComp(null);
                     }} style={{
                         flex: 1, padding: "10px 4px", borderRadius: 10,
@@ -439,13 +438,14 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
                 ))}
             </div>
 
+            {/* Search bar — always visible */}
+            <SearchBar value={query} onChange={setQuery} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />
+
             {/* ── DECODER MODE ── */}
             {errMode === "decoder" && !queryLower && <ErrorDecoder activeFamily={activeFamily} />}
 
             {/* ── SEARCH MODE ── */}
             {isSearch && <>
-                <SearchBar value={query} onChange={setQuery} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />
-
                 {/* Category filter chips */}
                 <div className="ns" style={{ display: "flex", gap: 5, padding: "0 14px 10px", overflowX: "auto" }}>
                     <Chip active={catFilter === "all"} onClick={() => setCatFilter("all")}>Todas</Chip>
