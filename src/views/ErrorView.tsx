@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, ReactNode } from "react";
+import { useState, useRef, useCallback, ReactNode, RefObject } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { theme, fonts, getCategoryLabel } from "../theme";
 import { SearchBar, Chip, Sec, None, Tag, StatusCard, ErrorSummaryCard, ICONS, BackButton } from "../components/ui";
@@ -173,43 +173,54 @@ function decodeBRMBytes(_ms: number, b0h: string, b1h: string, b2h: string, b3h:
     return rows;
 }
 
-interface ByteInputProps { label: string; sub?: string; value: string; onChange: (v: string) => void; color: string; wide?: boolean; }
-function ByteInput({ label, sub, value, onChange, color, wide }: ByteInputProps) {
+interface ByteInputProps { label: string; sub?: string; value: string; onChange: (v: string) => void; color: string; wide?: boolean; inputRef?: RefObject<HTMLInputElement>; nextRef?: RefObject<HTMLInputElement>; }
+function ByteInput({ label, sub, value, onChange, color, wide, inputRef, nextRef }: ByteInputProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <input
-                value={value} onChange={e => onChange(e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 2))}
+                ref={inputRef}
+                value={value}
+                onChange={e => {
+                    const v = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 2);
+                    onChange(v);
+                    if (v.length === 2 && nextRef?.current) nextRef.current.focus();
+                }}
                 placeholder="--" maxLength={2}
                 style={{
-                    width: wide ? 48 : 38, height: 38, textAlign: "center",
-                    fontFamily: fonts.mono, fontSize: 16, fontWeight: 700,
+                    width: wide ? 64 : 56, height: 56, textAlign: "center",
+                    fontFamily: fonts.mono, fontSize: 22, fontWeight: 700,
                     color, background: theme.card, border: `1.5px solid ${color}60`,
-                    borderRadius: 8, outline: "none", letterSpacing: ".1em",
+                    borderRadius: 10, outline: "none", letterSpacing: ".08em",
                     textTransform: "uppercase",
                 }}
             />
-            <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm, textAlign: "center", letterSpacing: ".3px" }}>{label}</span>
-            {sub && <span style={{ fontSize: 13, fontFamily: fonts.mono, color: theme.rdBd, textAlign: "center" }}>{sub}</span>}
+            <span style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm, textAlign: "center", letterSpacing: ".3px" }}>{label}</span>
+            {sub && <span style={{ fontSize: 12, fontFamily: fonts.mono, color: theme.rdBd, textAlign: "center" }}>{sub}</span>}
         </div>
     );
 }
 
-interface MStatusInputProps { value: string; onChange: (v: string) => void; }
-function MStatusInput({ value, onChange }: MStatusInputProps) {
+interface MStatusInputProps { value: string; onChange: (v: string) => void; nextRef?: RefObject<HTMLInputElement>; }
+function MStatusInput({ value, onChange, nextRef }: MStatusInputProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <input
-                value={value} onChange={e => onChange(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                value={value}
+                onChange={e => {
+                    const v = e.target.value.replace(/[^0-9]/g, "").slice(0, 3);
+                    onChange(v);
+                    if (v.length === 3 && nextRef?.current) nextRef.current.focus();
+                }}
                 placeholder="--" maxLength={3}
                 style={{
-                    width: 52, height: 38, textAlign: "center",
-                    fontFamily: fonts.mono, fontSize: 16, fontWeight: 700,
+                    width: 72, height: 56, textAlign: "center",
+                    fontFamily: fonts.mono, fontSize: 22, fontWeight: 700,
                     color: theme.rd, background: theme.card, border: `1.5px solid ${theme.rd}60`,
-                    borderRadius: 8, outline: "none", letterSpacing: ".1em",
+                    borderRadius: 10, outline: "none", letterSpacing: ".08em",
                 }}
             />
-            <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm }}>M-Status</span>
-            <span style={{ fontSize: 13, fontFamily: fonts.mono, color: theme.rdBd }}>decimal</span>
+            <span style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm }}>M-Status</span>
+            <span style={{ fontSize: 12, fontFamily: fonts.mono, color: theme.rdBd }}>decimal</span>
         </div>
     );
 }
@@ -226,6 +237,13 @@ function ErrorDecoder({ activeFamily }: { activeFamily: string }) {
     const [tcode, setTcode] = useState("");
     const [result, setResult] = useState<DecoderResult | null>(null);
     const navigate = useNavigate();
+
+    const b0Ref    = useRef<HTMLInputElement>(null);
+    const b1Ref    = useRef<HTMLInputElement>(null);
+    const b2Ref    = useRef<HTMLInputElement>(null);
+    const b3Ref    = useRef<HTMLInputElement>(null);
+    const b4Ref    = useRef<HTMLInputElement>(null);
+    const tcodeRef = useRef<HTMLInputElement>(null);
 
     function decode() {
         if (!ms) return;
@@ -250,23 +268,23 @@ function ErrorDecoder({ activeFamily }: { activeFamily: string }) {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-                    <MStatusInput value={ms} onChange={setMs} />
+                    <MStatusInput value={ms} onChange={setMs} nextRef={activeFamily === "s2" ? b1Ref : b0Ref} />
                     {sep}
                     {activeFamily === "s2" ? (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                            <div style={{ width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: fonts.mono, fontSize: 16, fontWeight: 700, color: theme.dm, background: theme.bg, border: `1.5px solid ${theme.bd}`, borderRadius: 8 }}>00</div>
-                            <span style={{ fontSize: 13, fontFamily: fonts.display, color: theme.dm }}>Byte 0</span>
-                            <span style={{ fontSize: 13, fontFamily: fonts.mono, color: theme.dm }}>YY (fijo)</span>
+                            <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: fonts.mono, fontSize: 22, fontWeight: 700, color: theme.dm, background: theme.bg, border: `1.5px solid ${theme.bd}`, borderRadius: 10 }}>00</div>
+                            <span style={{ fontSize: 12, fontFamily: fonts.display, color: theme.dm }}>Byte 0</span>
+                            <span style={{ fontSize: 12, fontFamily: fonts.mono, color: theme.dm }}>YY (fijo)</span>
                         </div>
                     ) : (
-                        <ByteInput label="Byte 0" sub="CMD" value={b0} onChange={setB0} color={theme.bl} />
+                        <ByteInput label="Byte 0" sub="CMD" value={b0} onChange={setB0} color={theme.bl} inputRef={b0Ref} nextRef={b1Ref} />
                     )}
-                    <ByteInput label="Byte 1" sub="AA" value={b1} onChange={setB1} color={theme.am} />
-                    <ByteInput label="Byte 2" sub="BB" value={b2} onChange={setB2} color={theme.am} />
-                    <ByteInput label="Byte 3" sub="CC" value={b3} onChange={setB3} color={theme.am} />
-                    {activeFamily === "s2" && <ByteInput label="Byte 4" sub="DD" value={b4} onChange={setB4} color={theme.am} />}
+                    <ByteInput label="Byte 1" sub="AA" value={b1} onChange={setB1} color={theme.am} inputRef={b1Ref} nextRef={b2Ref} />
+                    <ByteInput label="Byte 2" sub="BB" value={b2} onChange={setB2} color={theme.am} inputRef={b2Ref} nextRef={b3Ref} />
+                    <ByteInput label="Byte 3" sub="CC" value={b3} onChange={setB3} color={theme.am} inputRef={b3Ref} nextRef={activeFamily === "s2" ? b4Ref : tcodeRef} />
+                    {activeFamily === "s2" && <ByteInput label="Byte 4" sub="DD" value={b4} onChange={setB4} color={theme.am} inputRef={b4Ref} nextRef={tcodeRef} />}
                     {sep}
-                    <ByteInput label="T-Code" sub="ZZ" value={tcode} onChange={setTcode} color={theme.gn} wide />
+                    <ByteInput label="T-Code" sub="ZZ" value={tcode} onChange={setTcode} color={theme.gn} wide inputRef={tcodeRef} />
                 </div>
                 
                 {activeFamily === "s2" ? (
@@ -369,7 +387,7 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
     const activeFamily = familyId ?? "brm";
     const [query, setQuery] = useState("");
     const [catFilter, setCatFilter] = useState("all");
-    const [errMode, setErrMode] = useState("tree");
+    const [errMode, setErrMode] = useState("decoder");
     const [treeComp, setTreeComp] = useState<string | null>(null);
     const [expanded, setExpanded] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -446,14 +464,14 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
 
             {/* ── SEARCH MODE ── */}
             {isSearch && <>
-                {/* Category filter chips */}
-                <div className="ns" style={{ display: "flex", gap: 5, padding: "0 14px 10px", overflowX: "auto" }}>
+                {/* Category filter chips — only in Componente tab */}
+                {errMode === "tree" && <div className="ns" style={{ display: "flex", gap: 5, padding: "0 14px 10px", overflowX: "auto" }}>
                     <Chip active={catFilter === "all"} onClick={() => setCatFilter("all")}>Todas</Chip>
                     {allCategories.map(ct => (
                         <Chip key={ct} active={catFilter === ct} onClick={() => setCatFilter(ct)}>{getCategoryLabel(ct)}</Chip>
                     ))}
                     {activeFamily === "brm" && <Chip active={catFilter === "pcb"} onClick={() => setCatFilter("pcb")}>PCB (BRM)</Chip>}
-                </div>
+                </div>}
 
                 {/* Specific PCB filter view */}
                 {activeFamily === "brm" && catFilter === "pcb" ? (
