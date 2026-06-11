@@ -456,8 +456,8 @@ export function ErrorView({ favorites, onToggleFav }: ErrorViewProps) {
                 ))}
             </div>
 
-            {/* Search bar — always visible */}
-            <SearchBar value={query} onChange={setQuery} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />
+            {/* Search bar — only in Componente tab */}
+            {errMode === "tree" && <SearchBar value={query} onChange={setQuery} placeholder="Buscar M_STATUS, o descripción..." inputRef={inputRef} />}
 
             {/* ── DECODER MODE ── */}
             {errMode === "decoder" && !queryLower && <ErrorDecoder activeFamily={activeFamily} />}
